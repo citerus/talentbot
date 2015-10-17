@@ -21,14 +21,14 @@ Talentbot ska minimera tiden det tar att ta reda på vad en kollega kan och vill
                        |            |  
                        +-----+------+  
                              |         
-                       +-----+------+  
-                       |            |  
-                       |   Python   |  
-                       |            |  
-                       +-----+------+  
+                         +-----+------+  
+                         |            |  
+                         |   Python   |  
+                         |            |  
+                         +-----+------+  
                              |         
-                       +-----+------+  
-Definiera talanger     |            |  
-Överblicka talanger+--->   Trello   |  
-                       |            |  
-                       +------------+ 
+                         +-----+------+  
+  Definiera talanger     |            |  
+  Överblicka talanger+--->   Trello   |  
+                         |            |  
+                         +------------+ 
