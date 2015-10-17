@@ -11,24 +11,15 @@ Talentbot ska minimera tiden det tar att ta reda på vad en kollega kan och vill
 * Boten är en bot-användare som körs av en Python-baserad känns
 * Trello fungerar både som databas och administrationsgränssnitt
 
-                      Undersök talanger
-                             +         
-                             |         
-                             |         
-                       +-----v------+  
-                       |            |  
-                       |   Slack    |  
-                       |            |  
-                       +-----+------+  
-                             |         
-                         +-----+------+  
-                         |            |  
-                         |   Python   |  
-                         |            |  
-                         +-----+------+  
-                             |         
-                         +-----+------+  
-  Definiera talanger     |            |  
-  Överblicka talanger+--->   Trello   |  
-                         |            |  
-                         +------------+ 
+## Användbara länkar
+
+### Slack
+
+* https://api.slack.com
+* https://api.slack.com/rtm
+* Exempel på anrop till Slacks API: https://github.com/os/slacker/blob/master/slacker/__init__.py
+* 
+
+### Trello
+
+* https://developers.trello.com
