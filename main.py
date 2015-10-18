@@ -71,9 +71,6 @@ def getPersonTalentQueryDataFromTrello(trello, emailAddr):
 def getTalentPersonQueryDataFromTrello(trello):
     return "Talanger" #TODO implement
 
-def isTalentPersonQuery(msg):
-    return msgFormat.TEXT_KEY in msg and 'talent' in msg[msgFormat.TEXT_KEY]
-
 def extractUserKey(msg):
     userIdStr = msg[msgFormat.TEXT_KEY].strip() #remove whitespace
     userIdStr = userIdStr.replace(':','') #remove colons if any
