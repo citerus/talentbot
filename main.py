@@ -101,6 +101,11 @@ def main():
                 print "called for persons for a talent"
         except:
             print "Exception thrown"
+            
+        # In general Slack allows one message per second,
+        # although it may allow short bursts over the limit
+        # for a limited time. https://api.slack.com/docs/rate-limits
+        
         time.sleep(1)
 
 if __name__ == "__main__":
