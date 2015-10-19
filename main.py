@@ -5,20 +5,6 @@ from slackclient import SlackClient
 from trello import TrelloClient
 import pprint
 
-class SlackMsgFormat():
-    def __init__(self):
-        self.TEXT_KEY = 'text'
-        self.TYPE_KEY = 'type'
-        self.CHANNEL_KEY = 'channel'
-        self.MESSAGE_KEY = 'message'
-        self.USER_KEY = 'user'
-        self.REAL_NAME_KEY = 'real_name'
-        self.PROFILE_KEY = 'profile'
-        self.EMAIL_KEY = 'email'
-
-    def __getattr__(self, name):
-        return name if name in self else None
-
 #Set these variables in your local environment (export TRELLO_TOKEN=abcd)
 apiKey      = os.environ['TRELLO_API_KEY']
 apiSecret   = os.environ['TRELLO_API_SECRET']
