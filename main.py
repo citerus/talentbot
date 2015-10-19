@@ -59,12 +59,11 @@ class SlackEvent:
 
 def getPersonTalentQueryDataFromTrello(trello, emailAddr):
     board = [b for b in trello.list_boards() if 'Talanger' == b.name][0]
-    talentList = [l for l in board.get_lists('open') if l.name == emailAddr][0]
-
-    talentListStr = str(', '.join([c.name for c in talentList.list_cards()]))
-    unicode_content = talentListStr.decode('utf-8')
-
-    return unicode_content
+    users_talent_list = [l for l in board.get_lists('open') if l.name == emailAddr][0]
+    users_talent_cards = [card.name for card in users_talent_list.list_cards()]
+    commatized_string = str(', '.join(users_talent_cards))
+    utf_8_string = commatized_string.decode('utf-8')
+    return utf_8_string
 
 def getTalentPersonQueryDataFromTrello(trello):
     return "Talanger" #TODO implement
