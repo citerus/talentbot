@@ -29,3 +29,4 @@ Talentbot ska minimera tiden det tar att ta reda på vad en kollega kan och vill
 ### Trello
 
 * https://developers.trello.com
+* [Om Trellos rate limits](http://help.trello.com/article/838-api-rate-limits)
