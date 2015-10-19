@@ -51,12 +51,6 @@ class SlackEvent:
     def isTalentPersonQuery(self):
         return (msgFormat.TEXT_KEY in self.event) and 'talent' in self.event[msgFormat.TEXT_KEY]
 
-#TODO this func should filter messages not sent directly to slackbot
-def isValidMsg(msg):
-    return len(msg) > 0 \
-        and (msgFormat.USER_KEY not in msg[0] \
-        or msg[0][msgFormat.USER_KEY] != TALENTBOT_USER_ID)
-
 def getPersonTalentQueryDataFromTrello(trello, emailAddr):
     board = [b for b in trello.list_boards() if 'Talanger' == b.name][0]
     talentList = [l for l in board.get_lists('open') if l.name == emailAddr][0]
