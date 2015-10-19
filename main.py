@@ -29,9 +29,9 @@ class SlackEvent:
         
     def isMessage(self):
         return (self.TYPE_KEY in self.event) and (self.MESSAGE_KEY in self.event[self.TYPE_KEY])
-        
-    def lacksUser(self):
-        return self.USER_KEY not in self.event 
+    
+    def hasUser(self):
+        return self.USER_KEY in self.event
         
     def isTalentBot(self):
         return self.event[self.USER_KEY] == TALENTBOT_USER_ID
@@ -71,7 +71,7 @@ def processMessage(msg, sc, trello):
     # available on the WebSocket, which might mean several events in the list.    
     event = SlackEvent(msg[0])
     
-    if event.lacksUser():
+    if not event.hasUser():
         print "Event without user\n-", msg
         return
     
