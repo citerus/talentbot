@@ -89,8 +89,7 @@ def processMessage(msg, sc, trello):
     if event.isPersonTalentQuery():
         print "calling for talents for a person"
         
-        userKey = event.userKey()
-        userDataJson = sc.api_call("users.info", user=userKey)
+        userDataJson = sc.api_call("users.info", user=event.userKey())
         userData = json.loads(userDataJson)
         
         if event.hasUser():
