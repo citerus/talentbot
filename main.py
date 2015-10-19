@@ -19,8 +19,6 @@ class SlackMsgFormat():
     def __getattr__(self, name):
         return name if name in self else None
 
-msgFormat = SlackMsgFormat()
-
 #Set these variables in your local environment (export TRELLO_TOKEN=abcd)
 apiKey      = os.environ['TRELLO_API_KEY']
 apiSecret   = os.environ['TRELLO_API_SECRET']
@@ -31,29 +29,38 @@ token       = os.environ['SLACK_TOKEN']
 TALENTBOT_USER_ID = 'U0CJKS2DD'
 
 class SlackEvent:
+    TEXT_KEY = 'text'
+    TYPE_KEY = 'type'
+    CHANNEL_KEY = 'channel'
+    MESSAGE_KEY = 'message'
+    USER_KEY = 'user'
+    REAL_NAME_KEY = 'real_name'
+    PROFILE_KEY = 'profile'
+    EMAIL_KEY = 'email'
+    
     def __init__(self, event):
         self.event = event
         
     def isMessage(self):
-        return (msgFormat.TYPE_KEY in self.event) and (msgFormat.MESSAGE_KEY in self.event[msgFormat.TYPE_KEY])
+        return (self.TYPE_KEY in self.event) and (self.MESSAGE_KEY in self.event[self.TYPE_KEY])
         
     def lacksUser(self):
-        return msgFormat.USER_KEY not in self.event 
+        return self.USER_KEY not in self.event 
         
     def isTalentBot(self):
-        return self.event[msgFormat.USER_KEY] == TALENTBOT_USER_ID
+        return self.event[self.USER_KEY] == TALENTBOT_USER_ID
         
     def channel(self):
-        return self.event[msgFormat.CHANNEL_KEY]
+        return self.event[self.CHANNEL_KEY]
         
     def isPersonTalentQuery(self):
-        return (msgFormat.TEXT_KEY in self.event) and '@' in self.event[msgFormat.TEXT_KEY]
+        return (self.TEXT_KEY in self.event) and '@' in self.event[self.TEXT_KEY]
 
     def isTalentPersonQuery(self):
-        return (msgFormat.TEXT_KEY in self.event) and 'talent' in self.event[msgFormat.TEXT_KEY]
+        return (self.TEXT_KEY in self.event) and 'talent' in self.event[self.TEXT_KEY]
         
     def userKey(self):
-        userIdStr = self.event[msgFormat.TEXT_KEY].strip() #remove whitespace
+        userIdStr = self.event[self.TEXT_KEY].strip() #remove whitespace
         userIdStr = userIdStr.replace(':','') #remove colons if any
         userIdStr = userIdStr[2:-1] #slice user id from string minus @-sign 
         return userIdStr
@@ -97,22 +104,22 @@ def processMessage(msg, sc, trello):
         userDataJson = sc.api_call("users.info", user=userKey)
         userData = json.loads(userDataJson)
         
-        if msgFormat.USER_KEY in userData:
-            name = userData[msgFormat.USER_KEY][msgFormat.REAL_NAME_KEY]
-            email = userData[msgFormat.USER_KEY][msgFormat.PROFILE_KEY][msgFormat.EMAIL_KEY]
+        if SlackEvent.USER_KEY in userData:
+            name = userData[SlackEvent.USER_KEY][SlackEvent.REAL_NAME_KEY]
+            email = userData[SlackEvent.USER_KEY][SlackEvent.PROFILE_KEY][SlackEvent.EMAIL_KEY]
             trelloData = getPersonTalentQueryDataFromTrello(trello, email)
 
             sc.rtm_send_message(channel, 'Om ' + name + ': ' + trelloData)
         else:
-            sc.rtm_send_message(channel, 'Ingen person hittades med namnet ' + msg[0][msgFormat.TEXT_KEY].strip()[1:])
+            sc.rtm_send_message(channel, 'Ingen person hittades med namnet ' + msg[0][SlackEvent.TEXT_KEY].strip()[1:])
         
         print "called for talents for a person"
     
     if event.isTalentPersonQuery():
         #WORK IN PROGRESS
         print "calling for persons for a talent"
-        channel = msg[0][msgFormat.CHANNEL_KEY]
-        talentName = msg[0][msgFormat.TEXT_KEY]
+        channel = msg[0][SlackEvent.CHANNEL_KEY]
+        talentName = msg[0][SlackEvent.TEXT_KEY]
         trelloData = getTalentPersonQueryDataFromTrello(trello)
         sc.rtm_send_message(channel, 'Personer med talangen ' + talentName)
         print "called for persons for a talent"
