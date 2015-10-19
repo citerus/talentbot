@@ -18,14 +18,15 @@ class SlackMsgFormat():
 
     def __getattr__(self, name):
         return name if name in self else None
+
 msgFormat = SlackMsgFormat()
 
 #Set these variables in your local environment (export TRELLO_TOKEN=abcd)
-apiKey = os.environ['TRELLO_API_KEY']
-apiSecret = os.environ['TRELLO_API_SECRET']
-tr_token = os.environ['TRELLO_TOKEN']
+apiKey      = os.environ['TRELLO_API_KEY']
+apiSecret   = os.environ['TRELLO_API_SECRET']
+tr_token    = os.environ['TRELLO_TOKEN']
 tokenSecret = os.environ['TRELLO_TOKEN_SECRET']
-token = os.environ['SLACK_TOKEN']
+token       = os.environ['SLACK_TOKEN']
 
 TALENTBOT_USER_ID = 'U0CJKS2DD'
 
@@ -95,6 +96,7 @@ def processMessage(msg, sc, trello):
         userKey = event.userKey()
         userDataJson = sc.api_call("users.info", user=userKey)
         userData = json.loads(userDataJson)
+        
         if msgFormat.USER_KEY in userData:
             name = userData[msgFormat.USER_KEY][msgFormat.REAL_NAME_KEY]
             email = userData[msgFormat.USER_KEY][msgFormat.PROFILE_KEY][msgFormat.EMAIL_KEY]
@@ -103,6 +105,7 @@ def processMessage(msg, sc, trello):
             sc.rtm_send_message(channel, 'Om ' + name + ': ' + trelloData)
         else:
             sc.rtm_send_message(channel, 'Ingen person hittades med namnet ' + msg[0][msgFormat.TEXT_KEY].strip()[1:])
+        
         print "called for talents for a person"
     
     if event.isTalentPersonQuery():
