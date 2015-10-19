@@ -7,8 +7,9 @@ Talentbot ska minimera tiden det tar att ta reda på vad en kollega kan och vill
 
 ## Arkitektur
 
-* Korta snabba slagningar görs via Slack mha en bot
-* Boten är en bot-användare som körs av en Python-baserad känns
+* Användare gör slagningar i sin Slack-klient
+* Slagningarna fångas av Talentbot, som körs som en [bot user](https://api.slack.com/bot-users)
+* Boten är realiserad med en Python-baserad tjänst
 * Trello fungerar både som databas och administrationsgränssnitt
 
 ## Kom igång med Talentbot
