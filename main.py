@@ -49,8 +49,8 @@ class SlackEvent:
         return (self.TEXT_KEY in self.event) and 'talent' in self.event[self.TEXT_KEY]
         
     def userKey(self):
-        userIdStr = self.event[self.TEXT_KEY].strip() #remove whitespace
-        userIdStr = userIdStr.replace(':','') #remove colons if any
+        userIdStr = self.event[self.TEXT_KEY].strip()
+        userIdStr = userIdStr.replace(':','')
         userIdStr = userIdStr[2:-1] #slice user id from string minus @-sign 
         return userIdStr
 
