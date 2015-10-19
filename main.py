@@ -50,6 +50,12 @@ class SlackEvent:
 
     def isTalentPersonQuery(self):
         return (msgFormat.TEXT_KEY in self.event) and 'talent' in self.event[msgFormat.TEXT_KEY]
+        
+    def userKey(self):
+        userIdStr = self.event[msgFormat.TEXT_KEY].strip() #remove whitespace
+        userIdStr = userIdStr.replace(':','') #remove colons if any
+        userIdStr = userIdStr[2:-1] #slice user id from string minus @-sign 
+        return userIdStr
 
 def getPersonTalentQueryDataFromTrello(trello, emailAddr):
     board = [b for b in trello.list_boards() if 'Talanger' == b.name][0]
@@ -65,12 +71,6 @@ def getPersonTalentQueryDataFromTrello(trello, emailAddr):
 def getTalentPersonQueryDataFromTrello(trello):
     return "Talanger" #TODO implement
 
-def extractUserKey(msg):
-    userIdStr = msg[msgFormat.TEXT_KEY].strip() #remove whitespace
-    userIdStr = userIdStr.replace(':','') #remove colons if any
-    userIdStr = userIdStr[2:-1] #slice user id from string minus @-sign 
-    return userIdStr
-    
 def processMessage(msg, sc, trello):
     if msg is None or len(msg) == 0:
         return
@@ -95,7 +95,7 @@ def processMessage(msg, sc, trello):
         print "calling for talents for a person"
         channel = event.channel()
         
-        userKey = extractUserKey(msg[0])
+        userKey = event.userKey()
         userDataJson = sc.api_call("users.info", user=userKey)
         userData = json.loads(userDataJson)
         if msgFormat.USER_KEY in userData:
