@@ -54,7 +54,7 @@ class SlackEvent:
         userIdStr = userIdStr[2:-1] #slice user id from string minus @-sign 
         return userIdStr
 
-def getPersonTalentQueryDataFromTrello(trello, emailAddr):
+def getTalentsByEmail(trello, emailAddr):
     board = [b for b in trello.list_boards() if 'Talanger' == b.name][0]
     users_talent_list = [l for l in board.get_lists('open') if l.name == emailAddr][0]
     users_talent_cards = [card.name for card in users_talent_list.list_cards()]
@@ -62,7 +62,7 @@ def getPersonTalentQueryDataFromTrello(trello, emailAddr):
     utf_8_string = commatized_string.decode('utf-8')
     return utf_8_string
 
-def getTalentPersonQueryDataFromTrello(trello):
+def getPersonsByTalent(trello):
     return "Talanger" #TODO implement
 
 def processMessage(msg, sc, trello):
@@ -95,7 +95,7 @@ def processMessage(msg, sc, trello):
         if event.hasUser():
             name = userData[SlackEvent.USER_KEY][SlackEvent.REAL_NAME_KEY]
             email = userData[SlackEvent.USER_KEY][SlackEvent.PROFILE_KEY][SlackEvent.EMAIL_KEY]
-            trelloData = getPersonTalentQueryDataFromTrello(trello, email)
+            trelloData = getTalentsByEmail(trello, email)
 
             sc.rtm_send_message(event.channel(), 'Om ' + name + ': ' + trelloData)
         else:
@@ -106,7 +106,7 @@ def processMessage(msg, sc, trello):
     if event.isTalentPersonQuery():
         #WORK IN PROGRESS
         print "calling for persons for a talent"
-        trelloData = getTalentPersonQueryDataFromTrello(trello)
+        trelloData = getPersonsByTalent(trello)
         sc.rtm_send_message(event.channel(), 'Personer med talangen ' + event.text())
         print "called for persons for a talent"
 
