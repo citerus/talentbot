@@ -90,7 +90,7 @@ def processMessage(msg, sc, trello):
         userDataJson = sc.api_call("users.info", user=userKey)
         userData = json.loads(userDataJson)
         
-        if SlackEvent.USER_KEY in userData:
+        if event.hasUser():
             name = userData[SlackEvent.USER_KEY][SlackEvent.REAL_NAME_KEY]
             email = userData[SlackEvent.USER_KEY][SlackEvent.PROFILE_KEY][SlackEvent.EMAIL_KEY]
             trelloData = getPersonTalentQueryDataFromTrello(trello, email)
