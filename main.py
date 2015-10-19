@@ -39,6 +39,9 @@ class SlackEvent:
     def channel(self):
         return self.event[self.CHANNEL_KEY]
         
+    def text(self):
+        return self.event[SlackEvent.TEXT_KEY]
+        
     def isPersonTalentQuery(self):
         return (self.TEXT_KEY in self.event) and '@' in self.event[self.TEXT_KEY]
 
@@ -84,7 +87,6 @@ def processMessage(msg, sc, trello):
 
     if event.isPersonTalentQuery():
         print "calling for talents for a person"
-        channel = event.channel()
         
         userKey = event.userKey()
         userDataJson = sc.api_call("users.info", user=userKey)
@@ -95,19 +97,17 @@ def processMessage(msg, sc, trello):
             email = userData[SlackEvent.USER_KEY][SlackEvent.PROFILE_KEY][SlackEvent.EMAIL_KEY]
             trelloData = getPersonTalentQueryDataFromTrello(trello, email)
 
-            sc.rtm_send_message(channel, 'Om ' + name + ': ' + trelloData)
+            sc.rtm_send_message(event.channel(), 'Om ' + name + ': ' + trelloData)
         else:
-            sc.rtm_send_message(channel, 'Ingen person hittades med namnet ' + msg[0][SlackEvent.TEXT_KEY].strip()[1:])
+            sc.rtm_send_message(event.channel(), 'Ingen person hittades med namnet ' + event.text().strip()[1:])
         
         print "called for talents for a person"
     
     if event.isTalentPersonQuery():
         #WORK IN PROGRESS
         print "calling for persons for a talent"
-        channel = msg[0][SlackEvent.CHANNEL_KEY]
-        talentName = msg[0][SlackEvent.TEXT_KEY]
         trelloData = getTalentPersonQueryDataFromTrello(trello)
-        sc.rtm_send_message(channel, 'Personer med talangen ' + talentName)
+        sc.rtm_send_message(event.channel(), 'Personer med talangen ' + event.text())
         print "called for persons for a talent"
 
 def main():
