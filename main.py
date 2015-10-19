@@ -14,39 +14,30 @@ token       = os.environ['SLACK_TOKEN']
 
 TALENTBOT_USER_ID = 'U0CJKS2DD'
 
-class SlackEvent:
-    TEXT_KEY = 'text'
-    TYPE_KEY = 'type'
-    CHANNEL_KEY = 'channel'
-    MESSAGE_KEY = 'message'
-    USER_KEY = 'user'
-    REAL_NAME_KEY = 'real_name'
-    PROFILE_KEY = 'profile'
-    EMAIL_KEY = 'email'
-    
-    def __init__(self, event):
-        self.event = event
+class SlackEvent:    
+    def __init__(self, json):
+        self.json = json
         
     def isMessage(self):
-        return (self.TYPE_KEY in self.event) and (self.MESSAGE_KEY in self.event[self.TYPE_KEY])
+        return ('type' in self.json) and ('message' in self.json['type'])
     
     def hasUser(self):
-        return self.USER_KEY in self.event
+        return 'user' in self.json
         
     def isTalentBot(self):
-        return self.event[self.USER_KEY] == TALENTBOT_USER_ID
+        return self.json['user'] == TALENTBOT_USER_ID
         
     def channel(self):
-        return self.event[self.CHANNEL_KEY]
+        return self.json['channel']
         
     def text(self):
-        return self.event[SlackEvent.TEXT_KEY]
+        return self.json['text']
         
-    def textContains(self, text):
-        return (self.TEXT_KEY in self.event) and text in self.event[self.TEXT_KEY]
+    def textContains(self, str):
+        return ('text' in self.json) and str in self.json['text']
         
     def userKey(self):
-        return self.event[self.TEXT_KEY].strip().replace(':','')[2:-1]
+        return self.json['text'].strip().replace(':','')[2:-1]
         
 class SlackUser:
     def __init__(self, userDataJson):
