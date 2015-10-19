@@ -42,11 +42,8 @@ class SlackEvent:
     def text(self):
         return self.event[SlackEvent.TEXT_KEY]
         
-    def isPersonTalentQuery(self):
-        return (self.TEXT_KEY in self.event) and '@' in self.event[self.TEXT_KEY]
-
-    def isTalentPersonQuery(self):
-        return (self.TEXT_KEY in self.event) and 'talent' in self.event[self.TEXT_KEY]
+    def textContains(self, text):
+        return (self.TEXT_KEY in self.event) and text in self.event[self.TEXT_KEY]
         
     def userKey(self):
         return self.event[self.TEXT_KEY].strip().replace(':','')[2:-1]
@@ -89,7 +86,7 @@ def processMessage(msg, sc, trello):
     if event.isMessage():
         print "Incoming message\n-", msg
 
-    if event.isPersonTalentQuery():
+    if event.textContains('@'):
         print "Fetching talents for a person ..."
         
         userDataJson = sc.api_call("users.info", user=event.userKey())
@@ -105,7 +102,7 @@ def processMessage(msg, sc, trello):
         
         print "... done fetching talents."
     
-    if event.isTalentPersonQuery():
+    if event.textContains('talent'):
         # TODO Implement
         print "calling for persons for a talent"
         people = getPersonsByTalent(trello)
