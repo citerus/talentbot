@@ -49,10 +49,7 @@ class SlackEvent:
         return (self.TEXT_KEY in self.event) and 'talent' in self.event[self.TEXT_KEY]
         
     def userKey(self):
-        userIdStr = self.event[self.TEXT_KEY].strip()
-        userIdStr = userIdStr.replace(':','')
-        userIdStr = userIdStr[2:-1] #slice user id from string minus @-sign 
-        return userIdStr
+        return self.event[self.TEXT_KEY].strip().replace(':','')[2:-1]
 
 def getTalentsByEmail(trello, emailAddr):
     board = [b for b in trello.list_boards() if 'Talanger' == b.name][0]
