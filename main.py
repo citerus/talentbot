@@ -50,6 +50,12 @@ class SlackEvent:
         
     def userKey(self):
         return self.event[self.TEXT_KEY].strip().replace(':','')[2:-1]
+        
+class SlackUser:
+    def __init__(self, userDataJson):
+        self.userData = json.loads(userDataJson)
+        self.name = self.userData['user']['real_name']
+        self.email = self.userData['user']['profile']['email']
 
 def getTalentsByEmail(trello, emailAddr):
     board = [b for b in trello.list_boards() if 'Talanger' == b.name][0]
@@ -84,21 +90,20 @@ def processMessage(msg, sc, trello):
         print "Incoming message\n-", msg
 
     if event.isPersonTalentQuery():
-        print "calling for talents for a person"
+        print "Fetching talents for a person ..."
         
         userDataJson = sc.api_call("users.info", user=event.userKey())
-        userData = json.loads(userDataJson)
+
+        user = SlackUser(userDataJson)
+        print "-", user.name, user.email
         
         if event.hasUser():
-            name = userData[SlackEvent.USER_KEY][SlackEvent.REAL_NAME_KEY]
-            email = userData[SlackEvent.USER_KEY][SlackEvent.PROFILE_KEY][SlackEvent.EMAIL_KEY]
-            trelloData = getTalentsByEmail(trello, email)
-
-            sc.rtm_send_message(event.channel(), 'Om ' + name + ': ' + trelloData)
+            trelloData = getTalentsByEmail(trello, user.email)
+            sc.rtm_send_message(event.channel(), 'Om ' + user.name + ': ' + trelloData)
         else:
             sc.rtm_send_message(event.channel(), 'Ingen person hittades med namnet ' + event.text().strip()[1:])
         
-        print "called for talents for a person"
+        print "... done fetching talents."
     
     if event.isTalentPersonQuery():
         # TODO Implement
