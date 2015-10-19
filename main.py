@@ -12,6 +12,7 @@ tr_token    = os.environ['TRELLO_TOKEN']
 tokenSecret = os.environ['TRELLO_TOKEN_SECRET']
 token       = os.environ['SLACK_TOKEN']
 
+TRELLO_BOARD_NAME = 'Talanger'
 TALENTBOT_USER_ID = 'U0CJKS2DD'
 
 class SlackEvent:    
@@ -46,7 +47,7 @@ class SlackUser:
         self.email = self.userData['user']['profile']['email']
 
 def getTalentsByEmail(trello, emailAddr):
-    board = [b for b in trello.list_boards() if 'Talanger' == b.name][0]
+    board = [b for b in trello.list_boards() if TRELLO_BOARD_NAME == b.name][0]
     users_talent_list = [l for l in board.get_lists('open') if l.name == emailAddr][0]
     users_talent_cards = [card.name for card in users_talent_list.list_cards()]
     commatized_string = str(', '.join(users_talent_cards))
