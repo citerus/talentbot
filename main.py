@@ -63,7 +63,8 @@ def getTalentsByEmail(trello, emailAddr):
     return utf_8_string
 
 def getPersonsByTalent(trello):
-    return "Talanger" #TODO implement
+    # TODO Implement
+    return "Anna Anka, Bengt Baron, Carl Clocka"
 
 def processMessage(msg, sc, trello):
     if msg is None or len(msg) == 0:
@@ -104,10 +105,10 @@ def processMessage(msg, sc, trello):
         print "called for talents for a person"
     
     if event.isTalentPersonQuery():
-        #WORK IN PROGRESS
+        # TODO Implement
         print "calling for persons for a talent"
-        trelloData = getPersonsByTalent(trello)
-        sc.rtm_send_message(event.channel(), 'Personer med talangen ' + event.text())
+        people = getPersonsByTalent(trello)
+        sc.rtm_send_message(event.channel(), 'Personer med talangen: ' + people)
         print "called for persons for a talent"
 
 def main():
