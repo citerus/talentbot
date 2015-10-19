@@ -61,12 +61,10 @@ def getPersonTalentQueryDataFromTrello(trello, emailAddr):
     board = [b for b in trello.list_boards() if 'Talanger' == b.name][0]
     talentList = [l for l in board.get_lists('open') if l.name == emailAddr][0]
 
-    #replacing UTF-8 chars with XML-escapes to prevent error in SlackClient
     talentListStr = str(', '.join([c.name for c in talentList.list_cards()]))
     unicode_content = talentListStr.decode('utf-8')
-    xml_content = unicode_content.encode('ascii', 'xmlcharrefreplace')
 
-    return xml_content
+    return unicode_content
 
 def getTalentPersonQueryDataFromTrello(trello):
     return "Talanger" #TODO implement
