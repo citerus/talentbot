@@ -5,46 +5,42 @@ from slackclient import SlackClient
 from trello import TrelloClient
 import pprint
 
-# Set these variables in your local environment (export TRELLO_TOKEN=abcd)
+#Set these variables in your local environment (export TRELLO_TOKEN=abcd)
 apiKey      = os.environ['TRELLO_API_KEY']
 apiSecret   = os.environ['TRELLO_API_SECRET']
 tr_token    = os.environ['TRELLO_TOKEN']
 tokenSecret = os.environ['TRELLO_TOKEN_SECRET']
 token       = os.environ['SLACK_TOKEN']
 
-TRELLO_BOARD_NAME = 'Talanger'  # TODO might be a good idea to replace this with a Trello board ID
+TRELLO_BOARD_NAME = 'Talanger'
 TALENTBOT_USER_ID = 'U0CJKS2DD'
 
-
-class SlackEvent:
-
-    def __init__(self, jsonStr):
-        self.jsonStr = jsonStr
+class SlackEvent:    
+    def __init__(self, json):
+        self.json = json
         
     def isMessage(self):
-        return ('type' in self.jsonStr) and ('message' in self.jsonStr['type'])
+        return ('type' in self.json) and ('message' in self.json['type'])
     
     def hasUser(self):
-        return 'user' in self.jsonStr
+        return 'user' in self.json
         
     def isTalentBot(self):
-        return self.jsonStr['user'] == TALENTBOT_USER_ID
+        return self.json['user'] == TALENTBOT_USER_ID
         
     def channel(self):
-        return self.jsonStr['channel']
+        return self.json['channel']
         
     def text(self):
-        return self.jsonStr['text']
+        return self.json['text']
         
-    def textContains(self, inputStr):
-        return ('text' in self.jsonStr) and inputStr in self.jsonStr['text']
+    def textContains(self, str):
+        return ('text' in self.json) and str in self.json['text']
         
     def userKey(self):
-        return self.jsonStr['text'].strip().replace(':', '')[2:-1]
-
-
+        return self.json['text'].strip().replace(':','')[2:-1]
+        
 class SlackUser:
-
     def __init__(self, userDataJson):
         self.userData = json.loads(userDataJson)
         self.name = self.userData['user']['real_name']
@@ -54,22 +50,13 @@ def getTalentsByEmail(trello, emailAddr):
     board = [b for b in trello.list_boards() if TRELLO_BOARD_NAME == b.name][0]
     users_talent_list = [l for l in board.get_lists('open') if l.name == emailAddr][0]
     users_talent_cards = [card.name for card in users_talent_list.list_cards()]
-    return convertListToUtf8String(users_talent_cards)
+    commatized_string = str(', '.join(users_talent_cards))
+    utf_8_string = commatized_string.decode('utf-8')
+    return utf_8_string
 
-def getPersonEmailsByTalent(trello, talentName):
-    board = [b for b in trello.list_boards() if TRELLO_BOARD_NAME == b.name][0]
-    matching_persons = [l.name for l in board.get_lists('open') if len([c for c in l.list_cards() if talentName in c.name]) > 0]
-    matching_persons_names = [convertEmailAddressToFullName(p) for p in matching_persons]
-    return convertListToUtf8String(matching_persons_names)
-
-def convertListToUtf8String(list):
-    return str(', '.join(list)).decode('utf-8')
-
-def convertEmailAddressToFullName(emailAddr):
-    return ' '.join(map(lambda x: x.capitalize(), emailAddr.replace('@citerus.se', '').replace('.', ' ').split(' ')))
-
-def getTalentFromEvent(event):
-    return 'Java'
+def getPersonsByTalent(trello):
+    # TODO Implement
+    return "Anna Anka, Bengt Baron, Carl Clocka"
 
 def processMessage(msg, sc, trello):
     if msg is None or len(msg) == 0:
@@ -108,9 +95,9 @@ def processMessage(msg, sc, trello):
         print "... done fetching talents."
     
     if event.textContains('talent'):
+        # TODO Implement
         print "calling for persons with a talent"
-        talent = getTalentFromEvent(event)
-        people = getPersonEmailsByTalent(trello, talent)
+        people = getPersonsByTalent(trello)
         sc.rtm_send_message(event.channel(), 'Personer med talangen ' + talent + ': ' + people)
         print "called for persons with a talent"
 
