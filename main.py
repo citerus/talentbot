@@ -1,4 +1,5 @@
 import time
+import sys
 import os
 import json
 from slackclient import SlackClient
@@ -58,7 +59,7 @@ def getTalentsByEmail(trello, emailAddr):
 
 def getPersonEmailsByTalent(trello, talentName):
     board = [b for b in trello.list_boards() if TRELLO_BOARD_NAME == b.name][0]
-    matching_persons = [l.name for l in board.get_lists('open') if len([c for c in l.list_cards() if talentName in c.name]) > 0]
+    matching_persons = [l.name for l in board.get_lists('open') if len([c for c in l.list_cards() if talentName == c.name.decode('utf-8')]) > 0]
     matching_persons_names = [convertEmailAddressToFullName(p) for p in matching_persons]
     return convertListToUtf8String(matching_persons_names)
 
@@ -69,7 +70,7 @@ def convertEmailAddressToFullName(emailAddr):
     return ' '.join(map(lambda x: x.capitalize(), emailAddr.replace('@citerus.se', '').replace('.', ' ').split(' ')))
 
 def getTalentFromEvent(event):
-    return 'Java'
+    return event.text().replace('talent', '').strip()
 
 def processMessage(msg, sc, trello):
     if msg is None or len(msg) == 0:
@@ -110,8 +111,11 @@ def processMessage(msg, sc, trello):
     if event.textContains('talent'):
         print "calling for persons with a talent"
         talent = getTalentFromEvent(event)
-        people = getPersonEmailsByTalent(trello, talent)
-        sc.rtm_send_message(event.channel(), 'Personer med talangen' + talent + ': ' + people)
+        if len(talent) > 0:
+            people = getPersonEmailsByTalent(trello, talent)
+            sc.rtm_send_message(event.channel(), 'Personer med talangen ' + talent + ': ' + people)
+        else:
+            sc.rtm_send_message(event.channel(), 'Talangen ' + talent + ' ej funnen')
         print "called for persons with a talent"
 
 def main():
@@ -120,6 +124,7 @@ def main():
     
     if not slack.rtm_connect():
         print "Error: Failed to connect to Slack servers"
+        exit(-1)
     else:   
         print "Server is up and running"
     while True:
@@ -128,7 +133,7 @@ def main():
             processMessage(msg, slack, trello)
             #pprint.PrettyPrinter(indent=2).pprint(msg)
         except Exception as inst:
-            print "Exception caught:", inst
+            print "Exception caught:", sys.exc_info()
             pprint.PrettyPrinter(indent=2).pprint(inst)
         
         # In general Slack allows one message per second,
