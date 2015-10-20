@@ -111,7 +111,7 @@ def processMessage(msg, sc, trello):
         print "calling for persons with a talent"
         talent = getTalentFromEvent(event)
         people = getPersonEmailsByTalent(trello, talent)
-        sc.rtm_send_message(event.channel(), 'Personer med talangen' + talent + ': ' + people)
+        sc.rtm_send_message(event.channel(), 'Personer med talangen ' + talent + ': ' + people)
         print "called for persons with a talent"
 
 def main():
