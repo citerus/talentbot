@@ -97,6 +97,7 @@ def processMessage(msg, sc, trello):
     if event.textContains('talent'):
         # TODO Implement
         print "calling for persons with a talent"
+        talent = ''
         people = getPersonsByTalent(trello)
         sc.rtm_send_message(event.channel(), 'Personer med talangen ' + talent + ': ' + people)
         print "called for persons with a talent"
