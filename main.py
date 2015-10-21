@@ -59,9 +59,15 @@ def getTalentsByEmail(trello, emailAddr):
 
 def getPersonEmailsByTalent(trello, talentName):
     board = [b for b in trello.list_boards() if TRELLO_BOARD_NAME == b.name][0]
-    matching_persons = [l.name for l in board.get_lists('open') if len([c for c in l.list_cards() if talentName.lower() == c.name.decode('utf-8').lower()]) > 0]
-    matching_persons_names = [convertEmailAddressToFullName(p) for p in matching_persons]
-    return convertListToUtf8String(matching_persons_names)
+    matching_persons_emails = [l.name for l in board.get_lists('open') if len([c for c in l.list_cards() if talentName.lower() == c.name.decode('utf-8').lower()]) > 0]
+    return matching_persons_emails
+
+def persons_by_emails(slack, email_addresses):
+    all_users = json.loads(slack.api_call("users.list"))['members']
+    active_users = [u for u in all_users if (not u['deleted'])]
+    profiles = [u['profile'] for u in active_users if (u['profile'])]
+    matched_profiles = [p['real_name'] for p in profiles if ('email' in p) and p['email'] in email_addresses]
+    return ", ".join(matched_profiles)
 
 def convertListToUtf8String(list):
     return str(', '.join(list)).decode('utf-8')
@@ -112,7 +118,8 @@ def processMessage(msg, sc, trello):
         print "calling for persons with a talent"
         talent = getTalentFromEvent(event)
         if len(talent) > 0:
-            people = getPersonEmailsByTalent(trello, talent)
+            person_emails = getPersonEmailsByTalent(trello, talent)
+            people = persons_by_emails(sc, person_emails)
             sc.rtm_send_message(event.channel(), 'Personer med talangen ' + talent + ': ' + people)
         else:
             sc.rtm_send_message(event.channel(), 'Talangen ' + talent + ' ej funnen')
