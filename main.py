@@ -51,19 +51,25 @@ class SlackUser:
         self.name = self.userData['user']['real_name']
         self.email = self.userData['user']['profile']['email']
 
-def talentBoard(trello):
-    return trello.get_board(TRELLO_BOARD_ID)
+class TrelloTalents:
     
-def getTalentsByEmail(trello, emailAddr):
-    board = talentBoard(trello)
-    users_talent_list = [l for l in board.get_lists('open') if l.name == emailAddr][0]
-    users_talent_cards = [card.name for card in users_talent_list.list_cards()]
-    return convertListToUtf8String(users_talent_cards)
+    def __init__(self, api_key, api_secret, token, token_secret):
+        self.client = TrelloClient(api_key=apiKey, api_secret=apiSecret, token=tr_token, token_secret=tokenSecret)
 
-def getPersonEmailsByTalent(trello, talentName):
-    board = talentBoard(trello)
-    matching_persons_emails = [l.name for l in board.get_lists('open') if len([c for c in l.list_cards() if talentName.lower() == c.name.decode('utf-8').lower()]) > 0]
-    return matching_persons_emails
+    def talentBoard(self):
+        board = self.client.get_board(TRELLO_BOARD_ID)
+        return board
+    
+    def getTalentsByEmail(self, emailAddr):
+        board = self.talentBoard()
+        users_talent_list = [l for l in board.get_lists('open') if l.name == emailAddr][0]
+        users_talent_cards = [card.name for card in users_talent_list.list_cards()]
+        return convertListToUtf8String(users_talent_cards)
+
+    def getPersonEmailsByTalent(self, talentName):
+        board = self.talentBoard()
+        matching_persons_emails = [l.name for l in board.get_lists('open') if len([c for c in l.list_cards() if talentName.lower() == c.name.decode('utf-8').lower()]) > 0]
+        return matching_persons_emails
 
 def persons_by_emails(slack, email_addresses):
     all_users = json.loads(slack.api_call("users.list"))['members']
@@ -110,7 +116,7 @@ def processMessage(msg, sc, trello):
         print "-", user.name, user.email
         
         if event.hasUser():
-            trelloData = getTalentsByEmail(trello, user.email)
+            trelloData = trello.getTalentsByEmail(user.email)
             sc.rtm_send_message(event.channel(), 'Om ' + user.name + ': ' + trelloData)
         else:
             sc.rtm_send_message(event.channel(), 'Ingen person hittades med namnet ' + event.text().strip()[1:])
@@ -121,7 +127,7 @@ def processMessage(msg, sc, trello):
         print "calling for persons with a talent"
         talent = getTalentFromEvent(event)
         if len(talent) > 0:
-            person_emails = getPersonEmailsByTalent(trello, talent)
+            person_emails = trello.getPersonEmailsByTalent(talent)
             people = persons_by_emails(sc, person_emails)
             sc.rtm_send_message(event.channel(), 'Personer med talangen ' + talent + ': ' + people)
         else:
@@ -129,7 +135,7 @@ def processMessage(msg, sc, trello):
         print "called for persons with a talent"
 
 def main():
-    trello = TrelloClient(api_key=apiKey, api_secret=apiSecret, token=tr_token, token_secret=tokenSecret)
+    trello = TrelloTalents(api_key=apiKey, api_secret=apiSecret, token=tr_token, token_secret=tokenSecret)
     slack = SlackClient(token)
     
     if not slack.rtm_connect():
