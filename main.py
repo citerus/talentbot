@@ -77,9 +77,6 @@ def persons_by_emails(slack, email_addresses):
 def convertListToUtf8String(list):
     return str(', '.join(list)).decode('utf-8')
 
-def convertEmailAddressToFullName(emailAddr):
-    return ' '.join(map(lambda x: x.capitalize(), emailAddr.replace('@citerus.se', '').replace('.', ' ').split(' ')))
-
 def getTalentFromEvent(event):
     return event.text().replace('talent', '').strip()
 
