@@ -52,8 +52,7 @@ class SlackUser:
         self.email = self.userData['user']['profile']['email']
 
 def talentBoard(trello):
-    board = trello.get_board(TRELLO_BOARD_ID)
-    return board
+    return trello.get_board(TRELLO_BOARD_ID)
     
 def getTalentsByEmail(trello, emailAddr):
     board = talentBoard(trello)
