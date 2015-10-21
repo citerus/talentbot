@@ -59,7 +59,7 @@ def getTalentsByEmail(trello, emailAddr):
 
 def getPersonEmailsByTalent(trello, talentName):
     board = [b for b in trello.list_boards() if TRELLO_BOARD_NAME == b.name][0]
-    matching_persons = [l.name for l in board.get_lists('open') if len([c for c in l.list_cards() if talentName == c.name.decode('utf-8')]) > 0]
+    matching_persons = [l.name for l in board.get_lists('open') if len([c for c in l.list_cards() if talentName.lower() == c.name.decode('utf-8').lower()]) > 0]
     matching_persons_names = [convertEmailAddressToFullName(p) for p in matching_persons]
     return convertListToUtf8String(matching_persons_names)
 
