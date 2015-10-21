@@ -13,7 +13,7 @@ tr_token    = os.environ['TRELLO_TOKEN']
 tokenSecret = os.environ['TRELLO_TOKEN_SECRET']
 token       = os.environ['SLACK_TOKEN']
 
-TRELLO_BOARD_NAME = 'Talanger'  # TODO might be a good idea to replace this with a Trello board ID
+TRELLO_BOARD_ID = 'hud22dPi'
 TALENTBOT_USER_ID = 'U0CJKS2DD'
 
 
@@ -51,14 +51,17 @@ class SlackUser:
         self.name = self.userData['user']['real_name']
         self.email = self.userData['user']['profile']['email']
 
+def talentBoard(trello):
+    return trello.get_board(TRELLO_BOARD_ID)
+    
 def getTalentsByEmail(trello, emailAddr):
-    board = [b for b in trello.list_boards() if TRELLO_BOARD_NAME == b.name][0]
+    board = talentBoard(trello)
     users_talent_list = [l for l in board.get_lists('open') if l.name == emailAddr][0]
     users_talent_cards = [card.name for card in users_talent_list.list_cards()]
     return convertListToUtf8String(users_talent_cards)
 
 def getPersonEmailsByTalent(trello, talentName):
-    board = [b for b in trello.list_boards() if TRELLO_BOARD_NAME == b.name][0]
+    board = talentBoard(trello)
     matching_persons_emails = [l.name for l in board.get_lists('open') if len([c for c in l.list_cards() if talentName.lower() == c.name.decode('utf-8').lower()]) > 0]
     return matching_persons_emails
 
