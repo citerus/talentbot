@@ -1,46 +1,51 @@
 import time
+import sys
 import os
 import json
 from slackclient import SlackClient
 from trello import TrelloClient
 import pprint
 
-#Set these variables in your local environment (export TRELLO_TOKEN=abcd)
+# Set these variables in your local environment (export TRELLO_TOKEN=abcd)
 apiKey      = os.environ['TRELLO_API_KEY']
 apiSecret   = os.environ['TRELLO_API_SECRET']
 tr_token    = os.environ['TRELLO_TOKEN']
 tokenSecret = os.environ['TRELLO_TOKEN_SECRET']
 token       = os.environ['SLACK_TOKEN']
 
-TRELLO_BOARD_NAME = 'Talanger'
+TRELLO_BOARD_NAME = 'Talanger'  # TODO might be a good idea to replace this with a Trello board ID
 TALENTBOT_USER_ID = 'U0CJKS2DD'
 
-class SlackEvent:    
-    def __init__(self, json):
-        self.json = json
+
+class SlackEvent:
+
+    def __init__(self, jsonStr):
+        self.jsonStr = jsonStr
         
     def isMessage(self):
-        return ('type' in self.json) and ('message' in self.json['type'])
+        return ('type' in self.jsonStr) and ('message' in self.jsonStr['type'])
     
     def hasUser(self):
-        return 'user' in self.json
+        return 'user' in self.jsonStr
         
     def isTalentBot(self):
-        return self.json['user'] == TALENTBOT_USER_ID
+        return self.jsonStr['user'] == TALENTBOT_USER_ID
         
     def channel(self):
-        return self.json['channel']
+        return self.jsonStr['channel']
         
     def text(self):
-        return self.json['text']
+        return self.jsonStr['text']
         
-    def textContains(self, str):
-        return ('text' in self.json) and str in self.json['text']
+    def textContains(self, inputStr):
+        return ('text' in self.jsonStr) and inputStr in self.jsonStr['text']
         
     def userKey(self):
-        return self.json['text'].strip().replace(':','')[2:-1]
-        
+        return self.jsonStr['text'].strip().replace(':', '')[2:-1]
+
+
 class SlackUser:
+
     def __init__(self, userDataJson):
         self.userData = json.loads(userDataJson)
         self.name = self.userData['user']['real_name']
@@ -50,13 +55,28 @@ def getTalentsByEmail(trello, emailAddr):
     board = [b for b in trello.list_boards() if TRELLO_BOARD_NAME == b.name][0]
     users_talent_list = [l for l in board.get_lists('open') if l.name == emailAddr][0]
     users_talent_cards = [card.name for card in users_talent_list.list_cards()]
-    commatized_string = str(', '.join(users_talent_cards))
-    utf_8_string = commatized_string.decode('utf-8')
-    return utf_8_string
+    return convertListToUtf8String(users_talent_cards)
 
-def getPersonsByTalent(trello):
-    # TODO Implement
-    return "Anna Anka, Bengt Baron, Carl Clocka"
+def getPersonEmailsByTalent(trello, talentName):
+    board = [b for b in trello.list_boards() if TRELLO_BOARD_NAME == b.name][0]
+    matching_persons_emails = [l.name for l in board.get_lists('open') if len([c for c in l.list_cards() if talentName.lower() == c.name.decode('utf-8').lower()]) > 0]
+    return matching_persons_emails
+
+def persons_by_emails(slack, email_addresses):
+    all_users = json.loads(slack.api_call("users.list"))['members']
+    active_users = [u for u in all_users if (not u['deleted'])]
+    profiles = [u['profile'] for u in active_users if (u['profile'])]
+    matched_profiles = [p['real_name'] for p in profiles if ('email' in p) and p['email'] in email_addresses]
+    return ", ".join(matched_profiles)
+
+def convertListToUtf8String(list):
+    return str(', '.join(list)).decode('utf-8')
+
+def convertEmailAddressToFullName(emailAddr):
+    return ' '.join(map(lambda x: x.capitalize(), emailAddr.replace('@citerus.se', '').replace('.', ' ').split(' ')))
+
+def getTalentFromEvent(event):
+    return event.text().replace('talent', '').strip()
 
 def processMessage(msg, sc, trello):
     if msg is None or len(msg) == 0:
@@ -95,11 +115,14 @@ def processMessage(msg, sc, trello):
         print "... done fetching talents."
     
     if event.textContains('talent'):
-        # TODO Implement
         print "calling for persons with a talent"
-        talent = ''
-        people = getPersonsByTalent(trello)
-        sc.rtm_send_message(event.channel(), 'Personer med talangen ' + talent + ': ' + people)
+        talent = getTalentFromEvent(event)
+        if len(talent) > 0:
+            person_emails = getPersonEmailsByTalent(trello, talent)
+            people = persons_by_emails(sc, person_emails)
+            sc.rtm_send_message(event.channel(), 'Personer med talangen ' + talent + ': ' + people)
+        else:
+            sc.rtm_send_message(event.channel(), 'Talangen ' + talent + ' ej funnen')
         print "called for persons with a talent"
 
 def main():
@@ -108,6 +131,7 @@ def main():
     
     if not slack.rtm_connect():
         print "Error: Failed to connect to Slack servers"
+        exit(-1)
     else:   
         print "Server is up and running"
     while True:
@@ -116,7 +140,7 @@ def main():
             processMessage(msg, slack, trello)
             #pprint.PrettyPrinter(indent=2).pprint(msg)
         except Exception as inst:
-            print "Exception caught:", inst
+            print "Exception caught:", sys.exc_info()
             pprint.PrettyPrinter(indent=2).pprint(inst)
         
         # In general Slack allows one message per second,

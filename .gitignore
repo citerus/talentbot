@@ -62,3 +62,9 @@ target/
 bin/
 include/
 local/
+
+#idea files
+.idea/
+
+#temp files
+.*~
