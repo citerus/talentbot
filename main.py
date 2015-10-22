@@ -88,8 +88,8 @@ class Command (object):
         return
         
 class TalentBot:
-    def __init__(self, token):
-        self.slack = SlackClient(token)
+    def __init__(self, slackClient):
+        self.slack = slackClient
         self.commands = []
     
     def addCommand(self, command):
@@ -172,10 +172,24 @@ class TalentBot:
         profiles = [u['profile'] for u in active_users if (u['profile'])]
         matched_profiles = [p['real_name'] for p in profiles if ('email' in p) and p['email'] in email_addresses]
         return '\n- ' + '\n- '.join(matched_profiles)
+        
+class Help(Command):
+    def __init__(self, slack):
+        self.slack = slack
 
+    def shouldTriggerOn(self, event):
+        return event.textContainsKeyword('help')
+
+    def executeOn(self, event):
+        self.slack.rtm_send_message(event.channel(), ":paperclip: It looks like you need help.")
+        print "Executed help command"
+        return
+        
 def main():
+    slack = SlackClient(token)
     trello = TrelloTalents(api_key=apiKey, api_secret=apiSecret, token=tr_token, token_secret=tokenSecret)
-    talentBot = TalentBot(token)
+    talentBot = TalentBot(slack)
+    talentBot.addCommand(Help(slack))
     talentBot.run(trello)
 
 if __name__ == "__main__":
