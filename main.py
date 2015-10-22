@@ -22,6 +22,9 @@ class SlackEvent:
     def __init__(self, jsonStr):
         self.jsonStr = jsonStr
         
+    def __str__(self):
+        return str(self.jsonStr)
+
     def isMessage(self):
         return ('type' in self.jsonStr) and ('message' in self.jsonStr['type'])
     
@@ -80,39 +83,31 @@ def convertListToUtf8String(list):
 def getTalentFromEvent(event):
     return event.text().replace('talent', '').strip()
 
-def processMessage(msg, sc, trello):
-    if msg is None or len(msg) == 0:
-        return
-    
-    # @todo We must probably process all messages in the list, not just
-    # the first one, as now. When reading, the SlackClient fetches everything
-    # available on the WebSocket, which might mean several events in the list.    
-    event = SlackEvent(msg[0])
-    
+def processEvent(event, slack, trello):
     if not event.hasUser():
-        print "Event without user\n-", msg
+        print "Event without user\n-", event
         return
     
     if event.isTalentBot():
-        print "Event regarding myself\n-", msg
+        print "Event regarding myself\n-", event
         return
     
     if event.isMessage():
-        print "Incoming message\n-", msg
+        print "Incoming message\n-", event
 
     if event.textContains('@'):
         print "Fetching talents for a person ..."
         
-        userDataJson = sc.api_call("users.info", user=event.userKey())
+        userDataJson = slack.api_call("users.info", user=event.userKey())
 
         user = SlackUser(userDataJson)
         print "-", user.name, user.email
         
         if event.hasUser():
             trelloData = trello.getTalentsByEmail(user.email)
-            sc.rtm_send_message(event.channel(), 'Om ' + user.name + ': ' + trelloData)
+            slack.rtm_send_message(event.channel(), 'Om ' + user.name + ': ' + trelloData)
         else:
-            sc.rtm_send_message(event.channel(), 'Ingen person hittades med namnet ' + event.text().strip()[1:])
+            slack.rtm_send_message(event.channel(), 'Ingen person hittades med namnet ' + event.text().strip()[1:])
         
         print "... done fetching talents."
     
@@ -121,11 +116,17 @@ def processMessage(msg, sc, trello):
         talent = getTalentFromEvent(event)
         if len(talent) > 0:
             person_emails = trello.getPersonEmailsByTalent(talent)
-            people = persons_by_emails(sc, person_emails)
-            sc.rtm_send_message(event.channel(), 'Personer med talangen ' + talent + ': ' + people)
+            people = persons_by_emails(slack, person_emails)
+            slack.rtm_send_message(event.channel(), 'Personer med talangen ' + talent + ': ' + people)
         else:
-            sc.rtm_send_message(event.channel(), 'Talangen ' + talent + ' ej funnen')
+            slack.rtm_send_message(event.channel(), 'Talangen ' + talent + ' ej funnen')
         print "called for persons with a talent"
+
+def processEvents(events, slack, trello):
+    if events is None:
+        return
+    for event in events:
+        processEvent(SlackEvent(event), slack, trello)
 
 def main():
     trello = TrelloTalents(api_key=apiKey, api_secret=apiSecret, token=tr_token, token_secret=tokenSecret)
@@ -135,12 +136,11 @@ def main():
         print "Error: Failed to connect to Slack servers"
         exit(-1)
     else:   
-        print "Server is up and running"
+        print "Talentbot is up and running"
     while True:
         try:
-            msg = slack.rtm_read()
-            processMessage(msg, slack, trello)
-            #pprint.PrettyPrinter(indent=2).pprint(msg)
+            events = slack.rtm_read()
+            processEvents(events, slack, trello)
         except Exception as inst:
             print "Exception caught:", sys.exc_info()
             pprint.PrettyPrinter(indent=2).pprint(inst)
