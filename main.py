@@ -138,22 +138,30 @@ class TalentBot:
         if event.isMessage():
             print "Incoming message\n-", event
 
-        if event.textContains('@'):
-            print "Fetching talents for a person ..."
-        
-            userDataJson = self.slack.api_call("users.info", user=event.userKey())
+class FindTalentsForSomePerson(Command):
+    def __init__(self, slack, trello):
+        self.slack = slack
+        self.trello = trello
 
-            user = SlackUser(userDataJson)
-            print "-", user.name, user.email
+    def shouldTriggerOn(self, event):
+        return event.textContains('@')
+
+    def executeOn(self, event):
+        print "Fetching talents for a person ..."
         
-            if event.hasUser():
-                trelloData = trello.getTalentsByEmail(user.email)
-                self.slack.rtm_send_message(event.channel(), 'Om ' + user.name + ': ' + trelloData)
-            else:
-                self.slack.rtm_send_message(event.channel(), 'Ingen person hittades med namnet ' + event.text().strip()[1:])
-        
-            print "... done fetching talents."
-    
+        userDataJson = self.slack.api_call("users.info", user=event.userKey())
+
+        user = SlackUser(userDataJson)
+        print "-", user.name, user.email
+ 
+        if event.hasUser():
+            trelloData = self.trello.getTalentsByEmail(user.email)
+            self.slack.rtm_send_message(event.channel(), 'Om ' + user.name + ': ' + trelloData)
+        else:
+            self.slack.rtm_send_message(event.channel(), 'Ingen person hittades med namnet ' + event.text().strip()[1:])
+ 
+        print "... done fetching talents."
+
 class FindPeopleWithSomeTalent(Command):
     def __init__(self, slack, trello):
         self.slack = slack
@@ -199,6 +207,7 @@ def main():
     talentBot = TalentBot(slack)
     talentBot.addCommand(Help(slack))
     talentBot.addCommand(FindPeopleWithSomeTalent(slack, trello))
+    talentBot.addCommand(FindTalentsForSomePerson(slack, trello))
     talentBot.run(trello)
 
 if __name__ == "__main__":
