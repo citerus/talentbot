@@ -2,6 +2,7 @@ import time
 import sys
 import os
 import json
+import re
 from slackclient import SlackClient
 from trello import TrelloClient
 import pprint
@@ -43,6 +44,9 @@ class SlackEvent:
     def textContains(self, inputStr):
         return ('text' in self.jsonStr) and inputStr in self.jsonStr['text']
         
+    def textContainsKeyword(self, keyword):
+        return ('text' in self.jsonStr) and re.compile('^' + keyword + '\\s', re.IGNORECASE).match(self.jsonStr['text'])
+
     def userKey(self):
         return self.jsonStr['text'].strip().replace(':', '')[2:-1]
 
@@ -111,7 +115,7 @@ def processEvent(event, slack, trello):
         
         print "... done fetching talents."
     
-    if event.textContains('talent'):
+    if event.textContainsKeyword('talent'):
         print "calling for persons with a talent"
         talent = getTalentFromEvent(event)
         if len(talent) > 0:
