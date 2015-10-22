@@ -80,10 +80,21 @@ class TrelloTalents:
 def convertListToUtf8String(list):
     return str('\n- ' + '\n- '.join(list)).decode('utf-8')
 
+class Command (object):
+    def shouldTriggerOn(self, event):
+        return False
+
+    def executeOn(self, event):
+        return
+        
 class TalentBot:
     def __init__(self, token):
         self.slack = SlackClient(token)
+        self.commands = []
     
+    def addCommand(self, command):
+        self.commands.append(command)
+        
     def run(self, trello):
         if not self.slack.rtm_connect():
             print "Error: Failed to connect to Slack servers"
@@ -119,6 +130,11 @@ class TalentBot:
             print "Event regarding myself\n-", event
             return
     
+        for command in self.commands:
+            if command.shouldTriggerOn(event):
+                command.executeOn(event)
+                break
+            
         if event.isMessage():
             print "Incoming message\n-", event
 
