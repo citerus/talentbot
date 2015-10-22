@@ -154,17 +154,25 @@ class TalentBot:
         
             print "... done fetching talents."
     
-        if event.textContainsKeyword('talent'):
-            print "received request for talent"
-            talent = event.getKeywordArguments('talent')
-            print "calling for persons with talent " + talent 
-            if len(talent) > 0:
-                person_emails = trello.getPersonEmailsByTalent(talent)
-                people = self.persons_by_emails(person_emails)
-                self.slack.rtm_send_message(event.channel(), "Personer med talangen " + talent + ": " + people)
-            else:
-                self.slack.rtm_send_message(event.channel(), "Talangen " + talent + " ej funnen")
-                print "called for persons with a talent"
+class FindPeopleWithSomeTalent(Command):
+    def __init__(self, slack, trello):
+        self.slack = slack
+        self.trello = trello
+
+    def shouldTriggerOn(self, event):
+        return event.textContainsKeyword('talent')
+
+    def executeOn(self, event):
+        print "received request for talent"
+        talent = event.getKeywordArguments('talent')
+        print "calling for persons with talent " + talent 
+        if len(talent) > 0:
+            person_emails = self.trello.getPersonEmailsByTalent(talent)
+            people = self.persons_by_emails(person_emails)
+            self.slack.rtm_send_message(event.channel(), "Personer med talangen " + talent + ": " + people)
+        else:
+            self.slack.rtm_send_message(event.channel(), "Talangen " + talent + " ej funnen")
+            print "called for persons with a talent"
 
     def persons_by_emails(self, email_addresses):
         all_users = json.loads(self.slack.api_call("users.list"))['members']
@@ -190,6 +198,7 @@ def main():
     trello = TrelloTalents(api_key=apiKey, api_secret=apiSecret, token=tr_token, token_secret=tokenSecret)
     talentBot = TalentBot(slack)
     talentBot.addCommand(Help(slack))
+    talentBot.addCommand(FindPeopleWithSomeTalent(slack, trello))
     talentBot.run(trello)
 
 if __name__ == "__main__":
