@@ -64,7 +64,7 @@ class SlackUser:
 class TrelloTalents:
     
     def __init__(self, api_key, api_secret, token, token_secret):
-        self.client = TrelloClient(api_key=apiKey, api_secret=apiSecret, token=tr_token, token_secret=tokenSecret)
+        self.client = TrelloClient(api_key, api_secret, token, token_secret)
 
     def talentBoard(self):
         return self.client.get_board(TRELLO_BOARD_ID)
