@@ -84,7 +84,7 @@ class TalentBot:
     def __init__(self, token):
         self.slack = SlackClient(token)
     
-    def connect(self, trello):
+    def run(self, trello):
         if not self.slack.rtm_connect():
             print "Error: Failed to connect to Slack servers"
             exit(-1)
@@ -160,7 +160,7 @@ class TalentBot:
 def main():
     trello = TrelloTalents(api_key=apiKey, api_secret=apiSecret, token=tr_token, token_secret=tokenSecret)
     talentBot = TalentBot(token)
-    talentBot.connect(trello)
+    talentBot.run(trello)
 
 if __name__ == "__main__":
     main()
