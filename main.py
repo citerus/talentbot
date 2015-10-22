@@ -130,14 +130,14 @@ class TalentBot:
             print "Event regarding myself\n-", event
             return
     
+        if event.isMessage():
+            print "Incoming message\n-", event
+
         for command in self.commands:
             if command.shouldTriggerOn(event):
                 command.executeOn(event)
                 break
             
-        if event.isMessage():
-            print "Incoming message\n-", event
-
 class FindTalentsForSomePerson(Command):
     def __init__(self, slack, trello):
         self.slack = slack
