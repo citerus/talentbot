@@ -79,10 +79,10 @@ def persons_by_emails(slack, email_addresses):
     active_users = [u for u in all_users if (not u['deleted'])]
     profiles = [u['profile'] for u in active_users if (u['profile'])]
     matched_profiles = [p['real_name'] for p in profiles if ('email' in p) and p['email'] in email_addresses]
-    return ", ".join(matched_profiles)
+    return '\n- ' + '\n- '.join(matched_profiles)
 
 def convertListToUtf8String(list):
-    return str(', '.join(list)).decode('utf-8')
+    return str('\n- ' + '\n- '.join(list)).decode('utf-8')
 
 def getTalentFromEvent(event):
     return event.text().replace('talent', '').strip()
