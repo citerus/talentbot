@@ -16,7 +16,7 @@ Talentbot ska minimera tiden det tar att ta reda på vad en kollega kan och vill
 
 Klona repositoryt till din lokala maskin: 
 
-> git clone https://github.com/citerus/talentbot.git .
+> git clone https://github.com/citerus/talentbot.git
 
 Använd virtualenv för att skapa en lokal Pythonmiljö att installera paket i:
 
