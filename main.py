@@ -4,7 +4,7 @@ import os
 import json
 import re
 from slackclient import SlackClient
-from trello import TrelloClient
+from talents import TrelloTalents
 import pprint
 
 # Set these variables in your local environment (export TRELLO_TOKEN=abcd)
@@ -14,7 +14,6 @@ tr_token    = os.environ['TRELLO_TOKEN']
 tokenSecret = os.environ['TRELLO_TOKEN_SECRET']
 token       = os.environ['SLACK_TOKEN']
 
-TRELLO_BOARD_ID = 'hud22dPi'
 TALENTBOT_USER_ID = 'U0CJKS2DD'
 
 
@@ -60,25 +59,6 @@ class SlackUser:
         self.userData = json.loads(userDataJson)
         self.name = self.userData['user']['real_name']
         self.email = self.userData['user']['profile']['email']
-
-class TrelloTalents:
-    
-    def __init__(self, api_key, api_secret, token, token_secret):
-        self.client = TrelloClient(api_key, api_secret, token, token_secret)
-
-    def talentBoard(self):
-        return self.client.get_board(TRELLO_BOARD_ID)
-    
-    def getTalentsByEmail(self, emailAddr):
-        users_talent_list = [l for l in self.talentBoard().get_lists('open') if l.name == emailAddr][0]
-        users_talent_cards = [card.name for card in users_talent_list.list_cards()]
-        return convertListToUtf8String(users_talent_cards)
-
-    def getPersonEmailsByTalent(self, talentName):
-        return [l.name for l in self.talentBoard().get_lists('open') if len([c for c in l.list_cards() if talentName.lower() == c.name.decode('utf-8').lower()]) > 0]
-
-def convertListToUtf8String(list):
-    return str('\n- ' + '\n- '.join(list)).decode('utf-8')
 
 class Command (object):
     def shouldTriggerOn(self, event):
