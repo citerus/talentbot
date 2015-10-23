@@ -95,7 +95,7 @@ class TalentBot:
     def addCommand(self, command):
         self.commands.append(command)
         
-    def run(self, trello):
+    def run(self):
         if not self.slack.rtm_connect():
             print "Error: Failed to connect to Slack servers"
             exit(-1)
@@ -104,7 +104,7 @@ class TalentBot:
             while True:
                 try:
                     events = self.slack.rtm_read()
-                    self.processEvents(events, trello)
+                    self.processEvents(events)
                 except Exception as inst:
                     print "Exception caught:", sys.exc_info()
                     pprint.PrettyPrinter(indent=2).pprint(inst)
@@ -115,13 +115,13 @@ class TalentBot:
         
                     time.sleep(1)
 
-    def processEvents(self, events, trello):
+    def processEvents(self, events):
         if events is None:
             return
         for event in events:
-            self.processEvent(SlackEvent(event), trello)
+            self.processEvent(SlackEvent(event))
 
-    def processEvent(self, event, trello):
+    def processEvent(self, event):
         if not event.hasUser():
             print "Event without user\n-", event
             return
@@ -208,7 +208,7 @@ def main():
     talentBot.addCommand(Help(slack))
     talentBot.addCommand(FindPeopleWithSomeTalent(slack, trello))
     talentBot.addCommand(FindTalentsForSomePerson(slack, trello))
-    talentBot.run(trello)
+    talentBot.run()
 
 if __name__ == "__main__":
     main()
