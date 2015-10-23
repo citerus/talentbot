@@ -138,7 +138,7 @@ class TalentBot:
                 command.executeOn(event)
                 break
             
-class FindTalentsForSomePerson(Command):
+class FindTalentsByPerson(Command):
     def __init__(self, slack, trello):
         self.slack = slack
         self.trello = trello
@@ -162,7 +162,7 @@ class FindTalentsForSomePerson(Command):
  
         print "... done fetching talents."
 
-class FindPeopleWithSomeTalent(Command):
+class FindPeopleByTalent(Command):
     def __init__(self, slack, trello):
         self.slack = slack
         self.trello = trello
@@ -206,8 +206,8 @@ def main():
     trello = TrelloTalents(api_key=apiKey, api_secret=apiSecret, token=tr_token, token_secret=tokenSecret)
     talentBot = TalentBot(slack)
     talentBot.addCommand(Help(slack))
-    talentBot.addCommand(FindPeopleWithSomeTalent(slack, trello))
-    talentBot.addCommand(FindTalentsForSomePerson(slack, trello))
+    talentBot.addCommand(FindPeopleByTalent(slack, trello))
+    talentBot.addCommand(FindTalentsByPerson(slack, trello))
     talentBot.run()
 
 if __name__ == "__main__":
