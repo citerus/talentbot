@@ -2,7 +2,6 @@ import time
 import sys
 import json
 import re
-from slackclient import SlackClient
 import pprint
 
 TALENTBOT_USER_ID = 'U0CJKS2DD'
