@@ -33,7 +33,7 @@ class SlackEvent:
         return ('text' in self.jsonStr) and inputStr in self.jsonStr['text']
         
     def textContainsKeyword(self, keyword):
-        return ('text' in self.jsonStr) and re.compile('^' + keyword + '\\s', re.IGNORECASE).match(self.jsonStr['text'])
+        return ('text' in self.jsonStr) and re.compile('^' + keyword + '(\\s|$)', re.IGNORECASE).match(self.jsonStr['text'])
 
     def getKeywordArguments(self, keyword):
         return self.text().replace(keyword, '').strip()
