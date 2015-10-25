@@ -1,4 +1,5 @@
 from trello import TrelloClient
+from itertools import chain as flatten
 
 TRELLO_BOARD_ID = 'hud22dPi'
 
@@ -16,7 +17,13 @@ class TrelloTalents:
         return convertListToUtf8String(users_talent_cards)
 
     def getPersonEmailsByTalent(self, talentName):
-        return [l.name for l in self.talentBoard().get_lists('open') if len([c for c in l.list_cards() if talentName.lower() == c.name.decode('utf-8').lower()]) > 0]
+        listLengthFn = lambda c: len([c for c in l.list_cards() if talentName.lower() == c.name.decode('utf-8').lower()]) > 0
+        return [l.name for l in self.talentBoard().get_lists('open') if listLengthFn]
 
-def convertListToUtf8String(list):
-    return str('\n- ' + '\n- '.join(list)).decode('utf-8')
+    def getAllTalents(self):
+        lists = [l.list_cards() for l in self.talentBoard().get_lists('open')]
+        cards = list(set([card.name for card in flatten(lists)]))
+        return convertListToUtf8String(cards)
+
+def convertListToUtf8String(strList):
+    return str('\n- ' + '\n- '.join(strList)).decode('utf-8')

@@ -63,3 +63,17 @@ class Help(Command):
         self.slack.rtm_send_message(event.channel(), ":paperclip: It looks like you need help.")
         print "Executed help command"
         return
+
+class GetAllTalents(Command):
+    def __init__(self, slack, trello):
+        self.slack = slack
+        self.trello = trello
+
+    def shouldTriggerOn(self, event):
+        return event.textContainsKeyword('all-talents')
+
+    def executeOn(self, event):
+        print "Executing GetAllTalents command"
+        self.slack.rtm_send_message(event.channel(), "Talanger i systemet: " + self.trello.getAllTalents())
+        print "Executed GetAllTalents command"
+        return
