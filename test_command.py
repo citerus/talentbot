@@ -11,10 +11,19 @@ class HelpTest(unittest.TestCase):
         self.command = Help(slack)
 
     def test_shouldTriggerOnKeywordWithArgument(self):
-        eventJson = json.loads('{"text" : "help me"}')
-        event = SlackEvent(eventJson)
-        result = self.command.shouldTriggerOn(event)
+        command = self.command
+        result = command.shouldTriggerOn(eventWithText("help me"))
         self.assertTrue(result)
+
+    def test_shouldTriggerOnSingleKeyword(self):
+        command = self.command
+        result = command.shouldTriggerOn(eventWithText("help"))
+        self.assertTrue(result)
+
+def eventWithText(text):
+    jsonString = '{"text" : "' + text + '"}'
+    eventJson = json.loads(jsonString)
+    return SlackEvent(eventJson)
 
 def main():
     unittest.main()
