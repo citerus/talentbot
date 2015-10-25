@@ -21,9 +21,9 @@ class HelpTest(unittest.TestCase):
         self.assertTrue(result)
 
 def eventWithText(text):
-    jsonString = '{"text" : "' + text + '"}'
-    eventJson = json.loads(jsonString)
-    return SlackEvent(eventJson)
+    event = {}
+    event['text'] = text
+    return SlackEvent(event)
 
 def main():
     unittest.main()
