@@ -1,5 +1,4 @@
 import unittest
-import json
 from talentbot import SlackEvent, TALENTBOT_USER_ID
 
 class SlackEventTest(unittest.TestCase):
@@ -20,15 +19,11 @@ class SlackEventTest(unittest.TestCase):
         self.assertTrue(event.textContainsKeyword("banana"))
 
 def messageFromUser(user):
-    event = {}
-    event['type'] = 'message'
-    event['user'] = user
+    event = {'type': 'message', 'user': user}
     return SlackEvent(event)
 
 def messageWithText(text):
-    event = {}
-    event['type'] = 'message'
-    event['text'] = text
+    event = {'type': 'message', 'text': text}
     return SlackEvent(event)
 
 def main():

@@ -1,6 +1,5 @@
 import unittest
 import mock
-import json
 from command import Help
 from talentbot import SlackEvent
 
@@ -21,8 +20,7 @@ class HelpTest(unittest.TestCase):
         self.assertTrue(result)
 
 def eventWithText(text):
-    event = {}
-    event['text'] = text
+    event = {'text': text}
     return SlackEvent(event)
 
 def main():
@@ -30,4 +28,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
