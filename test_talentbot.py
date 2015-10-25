@@ -3,6 +3,10 @@ import json
 from talentbot import SlackEvent
 
 class SlackEventTest(unittest.TestCase):
+    def testCanIdentifyMessage(self):
+        event = messageWithText("hej")
+        self.assertTrue(event.isMessage())
+
     def testCanIdentifySingleKeyword(self):
         event = eventWithText("banana")
         self.assertTrue(event.textContainsKeyword("banana"))
@@ -11,10 +15,16 @@ class SlackEventTest(unittest.TestCase):
         event = eventWithText("banana split")
         self.assertTrue(event.textContainsKeyword("banana"))
 
+def messageWithText(text):
+    event = {}
+    event['type'] = 'message'
+    event['text'] = text
+    return SlackEvent(json.loads(json.dumps(event)))
+
 def eventWithText(text):
-    jsonString = '{"text" : "' + text + '"}'
-    eventJson = json.loads(jsonString)
-    return SlackEvent(eventJson)
+    event = {}
+    event['text'] = text
+    return SlackEvent(json.loads(json.dumps(event)))
 
 def main():
     unittest.main()
