@@ -1,5 +1,6 @@
 import os
 from flask import Flask
+from flask import request
 from slackclient import SlackClient
 from talents import TrelloTalents
 from talentbot import TalentBot
@@ -16,7 +17,11 @@ app = Flask(__name__)
 
 @app.route('/')
 def hello():
-    return "Hello, talentbot!"
+    request_token = request.args.get('token')
+    if (request_token != token):
+        return "No!"
+    else:
+        return "Hello, talentbot!"
 
 def main():
     slack = SlackClient(token)
