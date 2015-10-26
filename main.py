@@ -1,9 +1,8 @@
 import os
 from flask import Flask
 from flask import request
-from slackclient import SlackClient
 from talents import TrelloTalents
-from talentbot import TalentBot
+from talentbot import TalentCommand, SlackEvent
 from command import Help, FindPeopleByTalent, FindTalentsByPerson
 
 # Set these variables in your local environment
@@ -22,17 +21,23 @@ def hello():
     request_token = request.args.get('token')
     if (request_token != token):
         return "No!"
-    else:
-        return "Hello, talentbot!"
+    
+    request_text = request.args.get('text')
+    
+    talentCommand = TalentCommand()
+    talentCommand.addCommand(Help())
+    event = SlackEvent(request)
+    
+    return talentCommand.processEvent(event)
 
-def main():
-    slack = SlackClient(token)
-    trello = TrelloTalents(api_key=apiKey, api_secret=apiSecret, token=tr_token, token_secret=tokenSecret)
-    talentBot = TalentBot(slack)
-    talentBot.addCommand(Help(slack))
-    talentBot.addCommand(FindPeopleByTalent(slack, trello))
-    talentBot.addCommand(FindTalentsByPerson(slack, trello))
-    talentBot.run()
-
+# def main():
+#     slack = SlackClient(token)
+#     trello = TrelloTalents(api_key=apiKey, api_secret=apiSecret, token=tr_token, token_secret=tokenSecret)
+#     talentBot = TalentBot(slack)
+#     talentBot.addCommand(Help(slack))
+#     talentBot.addCommand(FindPeopleByTalent(slack, trello))
+#     talentBot.addCommand(FindTalentsByPerson(slack, trello))
+#     talentBot.run()
+#
 if __name__ == "__main__":
-    main()
+     app.run(debug=True)

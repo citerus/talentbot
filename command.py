@@ -1,5 +1,18 @@
 import json
-from talentbot import Command, SlackUser
+
+class Command (object):
+    def shouldTriggerOn(self, event):
+        return False
+
+    def executeOn(self, event):
+        return
+
+class Help(Command):
+    def shouldTriggerOn(self, event):
+        return event.textContainsKeyword('help')
+
+    def executeOn(self, event):
+        return ":paperclip: It looks like you need help."
 
 class FindTalentsByPerson(Command):
     def __init__(self, slack, trello):
@@ -52,14 +65,8 @@ class FindPeopleByTalent(Command):
         matched_profiles = [p['real_name'] for p in profiles if ('email' in p) and p['email'] in email_addresses]
         return '\n- ' + '\n- '.join(matched_profiles)
 
-class Help(Command):
-    def __init__(self, slack):
-        self.slack = slack
-
-    def shouldTriggerOn(self, event):
-        return event.textContainsKeyword('help')
-
-    def executeOn(self, event):
-        self.slack.rtm_send_message(event.channel(), ":paperclip: It looks like you need help.")
-        print "Executed help command"
-        return
+class SlackUser:
+    def __init__(self, userDataJson):
+        self.userData = json.loads(userDataJson)
+        self.name = self.userData['user']['real_name']
+        self.email = self.userData['user']['profile']['email']
