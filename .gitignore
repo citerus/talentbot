@@ -70,3 +70,4 @@ local/
 .*~
 /keys.sh
 /keys.py
+/heroku-keys.sh

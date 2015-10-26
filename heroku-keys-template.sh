@@ -1,0 +1,5 @@
+heroku config:set TRELLO_API_KEY=''
+heroku config:set TRELLO_API_SECRET=''
+heroku config:set TRELLO_TOKEN=''
+heroku config:set TRELLO_TOKEN_SECRET=''
+heroku config:set SLACK_TOKEN=''
