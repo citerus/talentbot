@@ -1,8 +1,6 @@
 import time
 import sys
-import json
 import re
-import pprint
 
 class TalentCommand:
     def __init__(self):
@@ -22,31 +20,15 @@ class TalentCommand:
 class SlackEvent:
 
     def __init__(self, request):
-        self.jsonStr = ""
+        self.text = request.args.get('text')
         self.request = request
         
-    def __str__(self):
-        return str(self.jsonStr)
-    
-    def hasUser(self):
-        return 'user' in self.jsonStr
-        
-    def channel(self):
-        return self.jsonStr['channel']
-        
-    def text(self):
-        return self.jsonStr['text']
-        
     def textContains(self, inputStr):
-        return ('text' in self.jsonStr) and inputStr in self.jsonStr['text']
+        return inputStr in self.text
         
     def textContainsKeyword(self, keyword):
-        #txt = self.jsonStr['text']
-        txt = self.request.args.get('text')
-        return re.compile('^' + keyword + '(\\s|$)', re.IGNORECASE).match(txt)
+        return re.compile('^' + keyword + '(\\s|$)', re.IGNORECASE).match(self.text)
 
     def getKeywordArguments(self, keyword):
-        return self.text().replace(keyword, '').strip()
+        return self.text.replace(keyword, '').strip()
 
-    def userKey(self):
-        return self.jsonStr['text'].strip().replace(':', '')[2:-1]

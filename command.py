@@ -12,61 +12,43 @@ class Help(Command):
         return event.textContainsKeyword('help')
 
     def executeOn(self, event):
-        return ":paperclip: It looks like you need help."
+        return ":paperclip: Clippy är död."
 
 class FindTalentsByPerson(Command):
-    def __init__(self, slack, trello):
-        self.slack = slack
+    def __init__(self, trello):
         self.trello = trello
 
     def shouldTriggerOn(self, event):
         return event.textContains('@')
 
     def executeOn(self, event):
-        print "Fetching talents for a person ..."
+        # TODO Problem - now we have to map slack handles to emails
+        # Because asking using a Slack handle is most convenient.
+        user_email = "tobias.fors@citerus.se"
 
-        userDataJson = self.slack.api_call("users.info", user=event.userKey())
-
-        user = SlackUser(userDataJson)
-        print "-", user.name, user.email
-
-        if event.hasUser():
-            trelloData = self.trello.getTalentsByEmail(user.email)
-            self.slack.rtm_send_message(event.channel(), 'Om ' + user.name + ': ' + trelloData)
+        # TODO If we found the requested user
+        if True: 
+            trelloData = self.trello.getTalentsByEmail(user_email)
+            return 'Om ' + user_email + ': ' + trelloData
         else:
-            self.slack.rtm_send_message(event.channel(), 'Ingen person hittades med namnet ' + event.text().strip()[1:])
-
-        print "... done fetching talents."
+            return 'Ingen person hittades med namnet ' + user_email
 
 class FindPeopleByTalent(Command):
-    def __init__(self, slack, trello):
-        self.slack = slack
+    def __init__(self, trello):
         self.trello = trello
 
     def shouldTriggerOn(self, event):
         return event.textContainsKeyword('talent')
 
     def executeOn(self, event):
-        print "received request for talent"
-        talent = event.getKeywordArguments('talent')
-        print "calling for persons with talent " + talent
-        if len(talent) > 0:
-            person_emails = self.trello.getPersonEmailsByTalent(talent)
-            people = self.persons_by_emails(person_emails)
-            self.slack.rtm_send_message(event.channel(), "Personer med talangen " + talent + ": " + people)
+        talent_word = event.getKeywordArguments('talent')
+
+        if talent_word.strip() == "":
+            return ""
+        
+        person_emails = self.trello.getPersonEmailsByTalent(talent_word)
+        
+        if len(person_emails) > 0:
+            return "Personer som kan " + talent_word + ": " + '\n- ' + '\n- '.join(person_emails)
         else:
-            self.slack.rtm_send_message(event.channel(), "Talangen " + talent + " ej funnen")
-            print "called for persons with a talent"
-
-    def persons_by_emails(self, email_addresses):
-        all_users = json.loads(self.slack.api_call("users.list"))['members']
-        active_users = [u for u in all_users if (not u['deleted'])]
-        profiles = [u['profile'] for u in active_users if (u['profile'])]
-        matched_profiles = [p['real_name'] for p in profiles if ('email' in p) and p['email'] in email_addresses]
-        return '\n- ' + '\n- '.join(matched_profiles)
-
-class SlackUser:
-    def __init__(self, userDataJson):
-        self.userData = json.loads(userDataJson)
-        self.name = self.userData['user']['real_name']
-        self.email = self.userData['user']['profile']['email']
+            return "Ingen har lagt upp att de kan " + talent_word + "."
