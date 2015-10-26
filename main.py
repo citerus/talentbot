@@ -6,7 +6,9 @@ from talents import TrelloTalents
 from talentbot import TalentBot
 from command import Help, FindPeopleByTalent, FindTalentsByPerson
 
-# Set these variables in your local environment (export TRELLO_TOKEN=abcd)
+# Set these variables in your local environment
+# When deploying to Heroku, these variables can
+# be set with the heroku-keys.sh script.
 apiKey      = os.environ['TRELLO_API_KEY']
 apiSecret   = os.environ['TRELLO_API_SECRET']
 tr_token    = os.environ['TRELLO_TOKEN']
