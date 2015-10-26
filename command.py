@@ -12,7 +12,7 @@ class Help(Command):
         return event.textContainsKeyword('help')
 
     def executeOn(self, event):
-        return ":paperclip: Clippy är död."
+        return ":paperclip: Clippy is ded."
 
 class FindTalentsByPerson(Command):
     def __init__(self, trello):
