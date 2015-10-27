@@ -2,6 +2,7 @@ import json
 from talentbot import Command, SlackUser
 import time
 from functools import wraps
+import logging
     
 def wraplog(doc):
     '''
@@ -11,10 +12,10 @@ def wraplog(doc):
     def real_decorator(func):
         def wrapper(*args, **kwargs):
             start = time.time()
-            print doc + "..."
+            logging.info(doc + "...")
             result = func(*args, **kwargs)
             end = time.time()
-            print "... done in %i seconds." % int(end-start)
+            logging.info("... done in %i seconds." % int(end-start))
             return result
         return wrapper
     return real_decorator
@@ -32,7 +33,7 @@ class FindTalentsByPerson(Command):
         userDataJson = self.slack.api_call("users.info", user=event.userKey())
 
         user = SlackUser(userDataJson)
-        print "-", user.name, user.email
+        logging.info(user.name + " : " + user.email)
 
         if event.hasUser():
             trelloData = self.trello.getTalentsByEmail(user.email)
@@ -51,7 +52,7 @@ class FindPeopleByTalent(Command):
     @wraplog("Calling for persons with talent")
     def executeOn(self, event):
         talent = event.getKeywordArguments('talent')
-        print "Calling for persons that know " + talent
+        logging.info("Calling for persons that know " + talent)
         if len(talent) > 0:
             person_emails = self.trello.getPersonEmailsByTalent2(talent)
             people = self.persons_by_emails(person_emails)
@@ -86,8 +87,7 @@ class GetAllTalents(Command):
     def shouldTriggerOn(self, event):
         return event.textContainsKeyword('all-talents')
 
+    @wraplog("Executing GetAllTalents command")
     def executeOn(self, event):
-        print "Executing GetAllTalents command"
         self.slack.rtm_send_message(event.channel(), "Talanger i systemet: " + self.trello.getAllTalents())
-        print "Executed GetAllTalents command"
         return

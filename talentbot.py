@@ -2,6 +2,8 @@ import time
 import sys
 import json
 import re
+import profile
+import logging
 import pprint
 
 TALENTBOT_USER_ID = 'U0CJKS2DD'
@@ -12,7 +14,8 @@ class SlackEvent:
         self.jsonStr = jsonStr
         
     def __str__(self):
-        return str(self.jsonStr)
+        #return str(self.jsonStr)
+        return pprint.pformat(self.jsonStr, indent=1, width=60)
 
     def isMessage(self):
         return ('type' in self.jsonStr) and ('message' in self.jsonStr['type'])
@@ -65,18 +68,17 @@ class TalentBot:
         
     def run(self):
         if not self.slack.rtm_connect():
-            print "Error: Failed to connect to Slack servers"
+            logging.critical("Error: Failed to connect to Slack servers")
             exit(-1)
         else:   
-            print "Talentbot is up and running"
+            logging.info("Talentbot is up and running")
             while True:
                 try:
                     events = self.slack.rtm_read()
                     self.processEvents(events)
-                except Exception as inst:
-                    print "Exception caught:", sys.exc_info()
-                    pprint.PrettyPrinter(indent=2).pprint(inst)
-        
+                except Exception, e:
+                    logging.exception(e)
+                            
                     # In general Slack allows one message per second,
                     # although it may allow short bursts over the limit
                     # for a limited time. https://api.slack.com/docs/rate-limits
@@ -91,15 +93,15 @@ class TalentBot:
 
     def processEvent(self, event):
         if not event.hasUser():
-            print "Event without user\n-", event
+            logging.info("Event without user\n- %s" % event)
             return
     
         if event.isTalentBot():
-            print "Event regarding myself\n-", event
+            logging.info("Event regarding myself\n- %s" % event)
             return
     
         if event.isMessage():
-            print "Incoming message\n-", event
+            logging.info("Incoming message\n- %s" % event)
 
         for command in self.commands:
             if command.shouldTriggerOn(event):
