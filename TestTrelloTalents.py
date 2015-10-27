@@ -50,11 +50,11 @@ class TrelloTest(unittest.TestCase):
         self.assertIn("tobias.fors@citerus.se", emails)
         
     def test_fetch_all_talents(self):
-        try:
-            talents = self.tt.getAllTalents()
-        except AttributeError as err:
-            self.fail(err)
-    
+        talents = self.tt.getAllTalents()
+        self.assertTrue(len(talents) > 1)
+        self.assertIn("Alpha", talents)
+        self.assertIn(self.COMMON_TALENT, talents)
+        self.assertIn("Zulu", talents)    
         
 suite = unittest.TestLoader().loadTestsFromTestCase(TrelloTest)
 unittest.TextTestRunner(verbosity=2).run(suite)

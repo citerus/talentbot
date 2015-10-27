@@ -13,7 +13,7 @@ class TrelloTalents:
     
     def getTalentsByEmail(self, emailAddr):
         users_talent_list = [l for l in self.talentBoard().get_lists('open') if l.name == emailAddr][0]
-        users_talent_cards = [card.name for card in users_talent_list.list_cards()]
+        users_talent_list = [card.name for card in users_talent_list.list_cards()]
         return convertListToUtf8String(users_talent_cards)
     
     def getTalentsByEmailAsList(self, emailAddr):
@@ -38,11 +38,11 @@ class TrelloTalents:
                     lists_containing_talent.append(l)
         
         return [match.name for match in lists_containing_talent]
-
+    
     def getAllTalents(self):
-        lists = [l.list_cards() for l in self.talentBoard().get_lists('open')]
-        cards = list(set([card.name for card in flatten(lists)]))
-        return convertListToUtf8String(cards)
+        all_cards = self.talentBoard().all_cards()        
+        unique_cards = list(set([card.name for card in flatten(all_cards)]))
+        return convertListToUtf8String(unique_cards)
         
     def is_match(self, card, talent_name):
         return card.name.decode('utf-8').lower() == talent_name.lower()
