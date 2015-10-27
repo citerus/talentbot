@@ -1,5 +1,6 @@
 import os
 from slackclient import SlackClient
+from trello import TrelloClient
 from talents import TrelloTalents
 from talentbot import TalentBot
 from command import Help, FindPeopleByTalent, FindTalentsByPerson, GetAllTalents
@@ -13,7 +14,8 @@ token       = os.environ['SLACK_TOKEN']
 
 def main():
     slack = SlackClient(token)
-    trello = TrelloTalents(api_key=apiKey, api_secret=apiSecret, token=tr_token, token_secret=tokenSecret)
+    trello_client = TrelloClient(apiKey, apiSecret, tr_token, tokenSecret)
+    trello = TrelloTalents(trello_client)
     talentBot = TalentBot(slack)
     talentBot.addCommand(Help(slack))
     talentBot.addCommand(FindPeopleByTalent(slack, trello))
