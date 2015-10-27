@@ -48,13 +48,18 @@ class TrelloTest(unittest.TestCase):
         emails = self.tt.getPersonEmailsByTalent2(talent)
         self.assertTrue(len(emails) > 1)
         self.assertIn("tobias.fors@citerus.se", emails)
+        
+    def test_fetch_all_talents(self):
+        try:
+            talents = self.tt.getAllTalents()
+        except AttributeError as err:
+            self.fail(err)
     
         
 suite = unittest.TestLoader().loadTestsFromTestCase(TrelloTest)
 unittest.TextTestRunner(verbosity=2).run(suite)
 
 # suite = unittest.TestSuite()
-# suite.addTest(TrelloTest("test_fetch_single_match"))
-# suite.addTest(TrelloTest("test_fetch_multiple_matches"))
+# suite.addTest(TrelloTest("test_fetch_all_talents"))
 # runner = unittest.TextTestRunner()
 # runner.run(suite)
