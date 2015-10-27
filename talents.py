@@ -13,7 +13,7 @@ class TrelloTalents:
     
     def getTalentsByEmail(self, emailAddr):
         users_talent_list = [l for l in self.talentBoard().get_lists('open') if l.name == emailAddr][0]
-        users_talent_list = [card.name for card in users_talent_list.list_cards()]
+        users_talent_cards = [card.name for card in users_talent_list.list_cards()]
         return convertListToUtf8String(users_talent_cards)
     
     def getTalentsByEmailAsList(self, emailAddr):
