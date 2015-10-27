@@ -1,5 +1,23 @@
 import json
 from talentbot import Command, SlackUser
+import time
+from functools import wraps
+    
+def wraplog(doc):
+    '''
+    Decorator that makes debug printouts before and
+    after calling the decorated function.
+    '''
+    def real_decorator(func):
+        def wrapper(*args, **kwargs):
+            start = time.time()
+            print doc + "..."
+            result = func(*args, **kwargs)
+            end = time.time()
+            print "... done in %i seconds." % int(end-start)
+            return result
+        return wrapper
+    return real_decorator
 
 class FindTalentsByPerson(Command):
     def __init__(self, slack, trello):
@@ -9,9 +27,8 @@ class FindTalentsByPerson(Command):
     def shouldTriggerOn(self, event):
         return event.textContains('@')
 
+    @wraplog("Fetching talents for a person")
     def executeOn(self, event):
-        print "Fetching talents for a person ..."
-
         userDataJson = self.slack.api_call("users.info", user=event.userKey())
 
         user = SlackUser(userDataJson)
@@ -23,8 +40,6 @@ class FindTalentsByPerson(Command):
         else:
             self.slack.rtm_send_message(event.channel(), 'Ingen person hittades med namnet ' + event.text().strip()[1:])
 
-        print "... done fetching talents."
-
 class FindPeopleByTalent(Command):
     def __init__(self, slack, trello):
         self.slack = slack
@@ -33,17 +48,16 @@ class FindPeopleByTalent(Command):
     def shouldTriggerOn(self, event):
         return event.textContainsKeyword('talent')
 
+    @wraplog("Calling for persons with talent")
     def executeOn(self, event):
-        print "received request for talent"
         talent = event.getKeywordArguments('talent')
-        print "calling for persons with talent " + talent
+        print "Calling for persons that know " + talent
         if len(talent) > 0:
             person_emails = self.trello.getPersonEmailsByTalent2(talent)
             people = self.persons_by_emails(person_emails)
             self.slack.rtm_send_message(event.channel(), "Personer med talangen " + talent + ": " + people)
         else:
             self.slack.rtm_send_message(event.channel(), "Talangen " + talent + " ej funnen")
-            print "called for persons with a talent"
 
     def persons_by_emails(self, email_addresses):
         all_users = json.loads(self.slack.api_call("users.list"))['members']
@@ -59,9 +73,9 @@ class Help(Command):
     def shouldTriggerOn(self, event):
         return event.textContainsKeyword('help')
 
+    @wraplog("Executing help command")
     def executeOn(self, event):
         self.slack.rtm_send_message(event.channel(), ":paperclip: It looks like you need help.")
-        print "Executed help command"
         return
 
 class GetAllTalents(Command):
