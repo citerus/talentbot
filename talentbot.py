@@ -41,7 +41,6 @@ class SlackEvent:
     def userKey(self):
         return self.jsonStr['text'].strip().replace(':', '')[2:-1]
 
-
 class SlackUser:
 
     def __init__(self, userDataJson):
@@ -106,4 +105,3 @@ class TalentBot:
             if command.shouldTriggerOn(event):
                 command.executeOn(event)
                 break
-            

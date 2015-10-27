@@ -38,7 +38,7 @@ class FindPeopleByTalent(Command):
         talent = event.getKeywordArguments('talent')
         print "calling for persons with talent " + talent
         if len(talent) > 0:
-            person_emails = self.trello.getPersonEmailsByTalent(talent)
+            person_emails = self.trello.getPersonEmailsByTalent2(talent)
             people = self.persons_by_emails(person_emails)
             self.slack.rtm_send_message(event.channel(), "Personer med talangen " + talent + ": " + people)
         else:
@@ -62,4 +62,18 @@ class Help(Command):
     def executeOn(self, event):
         self.slack.rtm_send_message(event.channel(), ":paperclip: It looks like you need help.")
         print "Executed help command"
+        return
+
+class GetAllTalents(Command):
+    def __init__(self, slack, trello):
+        self.slack = slack
+        self.trello = trello
+
+    def shouldTriggerOn(self, event):
+        return event.textContainsKeyword('all-talents')
+
+    def executeOn(self, event):
+        print "Executing GetAllTalents command"
+        self.slack.rtm_send_message(event.channel(), "Talanger i systemet: " + self.trello.getAllTalents())
+        print "Executed GetAllTalents command"
         return
