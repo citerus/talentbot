@@ -40,7 +40,7 @@ class FindPeopleByTalent(Command):
         if len(talent) > 0:
             person_emails = self.trello.getPersonEmailsByTalent2(talent)
             people = self.persons_by_emails(person_emails)
-            self.slack.rtm_send_message(event.channel(), "DEV Personer med talangen " + talent + ": " + people)
+            self.slack.rtm_send_message(event.channel(), "Personer med talangen " + talent + ": " + people)
         else:
             self.slack.rtm_send_message(event.channel(), "Talangen " + talent + " ej funnen")
             print "called for persons with a talent"
