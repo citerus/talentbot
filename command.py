@@ -1,7 +1,6 @@
 import json
 from talentbot import Command, SlackUser
 import time
-from functools import wraps
 import logging
     
 def wraplog(doc):
@@ -30,16 +29,27 @@ class FindTalentsByPerson(Command):
 
     @wraplog("Fetching talents for a person")
     def executeOn(self, event):
-        userDataJson = self.slack.api_call("users.info", user=event.userKey())
-
-        user = SlackUser(userDataJson)
-        logging.info(user.name + " : " + user.email)
-
         if event.hasUser():
-            trelloData = self.trello.getTalentsByEmail(user.email)
-            self.slack.rtm_send_message(event.channel(), 'Om ' + user.name + ': ' + trelloData)
+            userDataJson = self.slack.api_call("users.info", user=event.userKey())
+
+            try:
+                user = SlackUser(userDataJson)
+
+                logging.info(user.name + " : " + user.email)
+
+                trelloData = self.trello.getTalentsByEmail(user.email)
+                self.slack.rtm_send_message(event.channel(), 'Om ' + user.name + ': ' + trelloData)
+            except ValueError:
+                self.slack.rtm_send_message(event.channel(), self.getMissingUserErrorMsg(event))
+            except RuntimeError as re:
+                logging.error(re)
         else:
-            self.slack.rtm_send_message(event.channel(), 'Ingen person hittades med namnet ' + event.text().strip()[1:])
+            self.slack.rtm_send_message(event.channel(), self.getMissingUserErrorMsg(event))
+
+    @staticmethod
+    def getMissingUserErrorMsg(event):
+        return 'Ingen person hittades med namnet ' + event.text().strip()[1:]
+
 
 class FindPeopleByTalent(Command):
     def __init__(self, slack, trello):
