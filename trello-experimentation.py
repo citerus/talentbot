@@ -1,6 +1,4 @@
-import time
 import os
-import json
 from trello import TrelloClient
 
 #Use this file for trying out the trello api
