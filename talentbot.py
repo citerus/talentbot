@@ -93,15 +93,15 @@ class TalentBot:
 
     def processEvent(self, event):
         if not event.hasUser():
-            logging.info("Event without user\n- %s" % event)
+            logging.debug("Event without user\n- %s" % event)
             return
     
         if event.isTalentBot():
-            logging.info("Event regarding myself\n- %s" % event)
+            logging.debug("Event regarding myself\n- %s" % event)
             return
     
         if event.isMessage():
-            logging.info("Incoming message\n- %s" % event)
+            logging.debug("Incoming message\n- %s" % event)
 
         for command in self.commands:
             if command.shouldTriggerOn(event):
