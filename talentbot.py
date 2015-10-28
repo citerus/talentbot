@@ -79,11 +79,11 @@ class TalentBot:
                 except Exception, e:
                     logging.exception(e)
                             
-                    # In general Slack allows one message per second,
-                    # although it may allow short bursts over the limit
-                    # for a limited time. https://api.slack.com/docs/rate-limits
-        
-                    time.sleep(1)
+                # In general Slack allows one message per second,
+                # although it may allow short bursts over the limit
+                # for a limited time. https://api.slack.com/docs/rate-limits
+
+                time.sleep(1)
 
     def processEvents(self, events):
         if events is None:
