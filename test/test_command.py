@@ -47,6 +47,15 @@ class FindTalentsByPersonTest(unittest.TestCase):
         self.command.executeOn(eventData)
         self.command.slack.rtm_send_message.assert_called_with(789, 'Ingen person hittades med namnet 56')
 
+    def test_shouldGiveNoTalentsAddedErrorMessageForEmptyTalentList(self):
+        slackMsg = '{"ok":true, "user":{"real_name":"testname", "profile":{"email":"test2@citerus.se"}}}'
+        eventData = SlackEvent(json.loads('{"user":"123","text":"456","channel":789}'))
+        self.command.slack.api_call = MagicMock(return_value=slackMsg)
+        self.command.slack.rtm_send_message = MagicMock(return_value=None)
+        self.command.trello.getTalentsByEmail = MagicMock(return_value='')
+        self.command.executeOn(eventData)
+        self.command.slack.rtm_send_message.assert_called_with(789, 'testname har inte lagt till talanger')
+
 def eventWithText(text):
     event = {'text': text}
     return SlackEvent(event)

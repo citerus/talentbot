@@ -1,23 +1,7 @@
 import json
 from talentbot import Command, SlackUser
-import time
+from wraplog import wraplog
 import logging
-    
-def wraplog(doc):
-    '''
-    Decorator that makes debug printouts before and
-    after calling the decorated function.
-    '''
-    def real_decorator(func):
-        def wrapper(*args, **kwargs):
-            start = time.time()
-            logging.info(doc + "...")
-            result = func(*args, **kwargs)
-            end = time.time()
-            logging.info("... done in %i seconds." % int(end-start))
-            return result
-        return wrapper
-    return real_decorator
 
 class FindTalentsByPerson(Command):
     def __init__(self, slack, trello):
@@ -37,8 +21,11 @@ class FindTalentsByPerson(Command):
 
                 logging.info(user.name + " : " + user.email)
 
-                trelloData = self.trello.getTalentsByEmail(user.email)
-                self.slack.rtm_send_message(event.channel(), 'Om ' + user.name + ': ' + trelloData)
+                listOfTalents = self.trello.getTalentsByEmail(user.email)
+                if listOfTalents != '':
+                    self.slack.rtm_send_message(event.channel(), 'Om ' + user.name + ': ' + listOfTalents)
+                else:
+                    self.slack.rtm_send_message(event.channel(), user.name + ' har inte lagt till talanger')
             except ValueError:
                 self.slack.rtm_send_message(event.channel(), self.getMissingUserErrorMsg(event))
             except RuntimeError as re:
