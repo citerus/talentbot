@@ -1,7 +1,14 @@
 import json
-from talentbot import Command, SlackUser
+from talentbot import SlackUser
 from wraplog import wraplog
 import logging
+
+class Command (object):
+    def shouldTriggerOn(self, event):
+        return False
+
+    def executeOn(self, event):
+        return
 
 class FindTalentsByPerson(Command):
     def __init__(self, slack, trello):

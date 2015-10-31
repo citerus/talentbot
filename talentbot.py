@@ -64,14 +64,8 @@ class SlackUser:
             else:
                 raise RuntimeError("Unknown error from Slack server")
 
-class Command (object):
-    def shouldTriggerOn(self, event):
-        return False
-
-    def executeOn(self, event):
-        return
-        
 class TalentBot:
+
     def __init__(self, slackClient):
         self.slack = slackClient
         self.commands = []
