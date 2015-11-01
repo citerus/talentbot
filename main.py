@@ -4,7 +4,7 @@ from trello import TrelloClient
 from talents import TrelloTalents
 from talentbot import TalentBot
 from command import Help, FindPeopleByTalent, FindTalentsByPerson, GetAllTalents
-import logging
+import logging.config
 from envvars import verifyEnvironmentVariables
 
 # Set these variables in your local environment (export TRELLO_TOKEN=abcd)
@@ -21,8 +21,7 @@ def main():
                                TRELLO_TOKEN_SECRET=tokenSecret,
                                SLACK_TOKEN=token)
 
-    # TODO Set log level from command line, default to INFO
-    logging.basicConfig(filename='talentbot.log', level=logging.INFO)
+    logging.config.fileConfig('logging.conf')
 
     slack = SlackClient(token)
     trello_client = TrelloClient(apiKey, apiSecret, tr_token, tokenSecret)
