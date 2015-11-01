@@ -48,4 +48,4 @@ class TrelloTalents:
         return card.name.decode('utf-8').lower() == talent_name.lower()
 
 def convertListToUtf8String(strList):
-    return str('\n- ' + '\n- '.join(strList)).decode('utf-8')
+    return '' if len(strList) == 0 else str('\n- ' + '\n- '.join(strList)).decode('utf-8')

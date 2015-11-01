@@ -1,24 +1,14 @@
 import json
-from talentbot import Command, SlackUser
-import time
-from functools import wraps
+from talentbot import SlackUser
+from wraplog import wraplog
 import logging
-    
-def wraplog(doc):
-    '''
-    Decorator that makes debug printouts before and
-    after calling the decorated function.
-    '''
-    def real_decorator(func):
-        def wrapper(*args, **kwargs):
-            start = time.time()
-            logging.info(doc + "...")
-            result = func(*args, **kwargs)
-            end = time.time()
-            logging.info("... done in %i seconds." % int(end-start))
-            return result
-        return wrapper
-    return real_decorator
+
+class Command (object):
+    def shouldTriggerOn(self, event):
+        return False
+
+    def executeOn(self, event):
+        return
 
 class FindTalentsByPerson(Command):
     def __init__(self, slack, trello):
@@ -26,20 +16,34 @@ class FindTalentsByPerson(Command):
         self.trello = trello
 
     def shouldTriggerOn(self, event):
-        return event.textContains('@')
+        return event.isDirectMsgForTalentBot() \
+               or (event.isForTalentBot() and event.hasAdditionalAddressee())
 
     @wraplog("Fetching talents for a person")
     def executeOn(self, event):
+        logging.debug("Raw data: " + str(event))
+
         userDataJson = self.slack.api_call("users.info", user=event.userKey())
 
-        user = SlackUser(userDataJson)
-        logging.info(user.name + " : " + user.email)
+        try:
+            user = SlackUser(userDataJson)
 
-        if event.hasUser():
-            trelloData = self.trello.getTalentsByEmail(user.email)
-            self.slack.rtm_send_message(event.channel(), 'Om ' + user.name + ': ' + trelloData)
-        else:
-            self.slack.rtm_send_message(event.channel(), 'Ingen person hittades med namnet ' + event.text().strip()[1:])
+            logging.info(user.name + " : " + user.email)
+
+            listOfTalents = self.trello.getTalentsByEmail(user.email)
+            if listOfTalents != '':
+                self.slack.rtm_send_message(event.channel(), 'Om ' + user.name + ': ' + listOfTalents)
+            else:
+                self.slack.rtm_send_message(event.channel(), user.name + ' har inte lagt till talanger')
+        except ValueError:
+            self.slack.rtm_send_message(event.channel(), self.getMissingUserErrorMsg(event))
+        except RuntimeError as re:
+            logging.error(re)
+
+    @staticmethod
+    def getMissingUserErrorMsg(event):
+        return 'Ingen person hittades med namnet ' + event.text().strip()[1:]
+
 
 class FindPeopleByTalent(Command):
     def __init__(self, slack, trello):
