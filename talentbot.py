@@ -33,7 +33,7 @@ class SlackEvent:
         return self.jsonStr['text'].rfind('<@') > 0
 
     def isDirectMsgForTalentBot(self):
-        return self.jsonStr['channel'].find('D') == 0
+        return self.jsonStr.get('channel','').find('D') == 0
 
     def channel(self):
         return self.jsonStr['channel']

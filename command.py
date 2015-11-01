@@ -16,30 +16,29 @@ class FindTalentsByPerson(Command):
         self.trello = trello
 
     def shouldTriggerOn(self, event):
-        return event.textContains('@')
+        return event.isDirectMsgForTalentBot() \
+               or (event.isForTalentBot() and event.hasAdditionalAddressee())
 
     @wraplog("Fetching talents for a person")
     def executeOn(self, event):
         logging.debug("Raw data: " + str(event))
 
-        if event.isDirectMsgForTalentBot() \
-                or (event.isForTalentBot() and event.hasAdditionalAddressee()):
-            userDataJson = self.slack.api_call("users.info", user=event.userKey())
+        userDataJson = self.slack.api_call("users.info", user=event.userKey())
 
-            try:
-                user = SlackUser(userDataJson)
+        try:
+            user = SlackUser(userDataJson)
 
-                logging.info(user.name + " : " + user.email)
+            logging.info(user.name + " : " + user.email)
 
-                listOfTalents = self.trello.getTalentsByEmail(user.email)
-                if listOfTalents != '':
-                    self.slack.rtm_send_message(event.channel(), 'Om ' + user.name + ': ' + listOfTalents)
-                else:
-                    self.slack.rtm_send_message(event.channel(), user.name + ' har inte lagt till talanger')
-            except ValueError:
-                self.slack.rtm_send_message(event.channel(), self.getMissingUserErrorMsg(event))
-            except RuntimeError as re:
-                logging.error(re)
+            listOfTalents = self.trello.getTalentsByEmail(user.email)
+            if listOfTalents != '':
+                self.slack.rtm_send_message(event.channel(), 'Om ' + user.name + ': ' + listOfTalents)
+            else:
+                self.slack.rtm_send_message(event.channel(), user.name + ' har inte lagt till talanger')
+        except ValueError:
+            self.slack.rtm_send_message(event.channel(), self.getMissingUserErrorMsg(event))
+        except RuntimeError as re:
+            logging.error(re)
 
     @staticmethod
     def getMissingUserErrorMsg(event):

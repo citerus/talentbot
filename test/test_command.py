@@ -29,13 +29,13 @@ class FindTalentsByPersonTest(unittest.TestCase):
     def setUp(self, slack, trello):
         self.command = FindTalentsByPerson(slack, trello)
 
-    def test_shouldTriggerOnKeywordWithAtSignAndName(self):
+    def test_shouldNotTriggerOnKeywordWithAtSignAndName(self):
         result = self.command.shouldTriggerOn(eventWithText("@ola"))
-        self.assertTrue(result)
+        self.assertFalse(result)
 
-    def test_shouldTriggerOnSingleAtSign(self):
+    def test_shouldNotTriggerOnSingleAtSign(self):
         result = self.command.shouldTriggerOn(eventWithText("@"))
-        self.assertTrue(result)
+        self.assertFalse(result)
 
     def test_shouldNotTriggerOnKeywordWithoutAtSign(self):
         result = self.command.shouldTriggerOn(eventWithText("ola"))
@@ -47,6 +47,7 @@ class FindTalentsByPersonTest(unittest.TestCase):
         self.command.slack.api_call = MagicMock(return_value=slackErrMsg)
         self.command.slack.rtm_send_message = MagicMock(return_value=None)
 
+        self.assertTrue(self.command.shouldTriggerOn(eventData))
         self.command.executeOn(eventData)
 
         self.command.slack.rtm_send_message.assert_called_with("D123", 'Ingen person hittades med namnet 56')
@@ -58,6 +59,7 @@ class FindTalentsByPersonTest(unittest.TestCase):
         self.command.slack.rtm_send_message = MagicMock(return_value=None)
         self.command.trello.getTalentsByEmail = MagicMock(return_value='')
 
+        self.assertTrue(self.command.shouldTriggerOn(eventData))
         self.command.executeOn(eventData)
 
         self.command.slack.rtm_send_message.assert_called_with("D123", 'testname har inte lagt till talanger')
@@ -79,6 +81,7 @@ class FindTalentsByPersonTest(unittest.TestCase):
         self.command.slack.rtm_send_message = MagicMock(return_value=None)
         self.command.trello.getTalentsByEmail = MagicMock(return_value='')
 
+        self.assertTrue(self.command.shouldTriggerOn(eventData))
         self.command.executeOn(eventData)
 
         self.command.slack.rtm_send_message.assert_called_with("D123", 'testname har inte lagt till talanger')
@@ -92,6 +95,7 @@ class FindTalentsByPersonTest(unittest.TestCase):
         self.command.slack.rtm_send_message = MagicMock(return_value=None)
         self.command.trello.getTalentsByEmail = MagicMock(return_value='')
 
+        self.assertTrue(self.command.shouldTriggerOn(eventData))
         self.command.executeOn(eventData)
 
         self.command.slack.rtm_send_message.assert_called_with("C123", 'testname har inte lagt till talanger')
@@ -105,9 +109,9 @@ class FindTalentsByPersonTest(unittest.TestCase):
         self.command.slack.rtm_send_message = MagicMock(return_value=None)
         self.command.trello.getTalentsByEmail = MagicMock(return_value='')
 
-        self.command.executeOn(eventData)
+        result = self.command.shouldTriggerOn(eventData)
 
-        self.command.slack.rtm_send_message.assert_not_called()
+        self.assertFalse(result)
 
 def eventWithText(text):
     event = {'text': text}
