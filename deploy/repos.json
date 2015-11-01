@@ -1,5 +1,5 @@
 {
-    "citerus/talentbot": {
+    "citerus/talentbot/branch:master": {
 	"path": "/home/ubuntu/talentbot",
 	"key": "secretkey-here",
 	"action": [["git", "pull", "origin", "master"],
