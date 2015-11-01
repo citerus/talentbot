@@ -111,8 +111,8 @@ class TalentBot:
             self.processEvent(SlackEvent(event))
 
     def processEvent(self, event):
-        if not event.hasUser():
-            logging.debug("Event without user\n- %s" % event)
+        if not event.isMessage():
+            logging.debug("Non-message event\n- %s" % event)
             return
     
         if event.isTalentBot():
