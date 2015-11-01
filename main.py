@@ -7,11 +7,11 @@ from command import Help, FindPeopleByTalent, FindTalentsByPerson, GetAllTalents
 import logging
 
 # Set these variables in your local environment (export TRELLO_TOKEN=abcd)
-apiKey      = os.environ['TRELLO_API_KEY']
-apiSecret   = os.environ['TRELLO_API_SECRET']
-tr_token    = os.environ['TRELLO_TOKEN']
-tokenSecret = os.environ['TRELLO_TOKEN_SECRET']
-token       = os.environ['SLACK_TOKEN']
+apiKey      = os.environ.get('TRELLO_API_KEY')
+apiSecret   = os.environ.get('TRELLO_API_SECRET')
+tr_token    = os.environ.get('TRELLO_TOKEN')
+tokenSecret = os.environ.get('TRELLO_TOKEN_SECRET')
+token       = os.environ.get('SLACK_TOKEN')
 
 def verifyEnvironmentVariables(apiKey, apiSecret, tr_token, tokenSecret, token):
     if apiKey is None or len(apiKey) == 0:
