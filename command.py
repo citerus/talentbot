@@ -20,7 +20,10 @@ class FindTalentsByPerson(Command):
 
     @wraplog("Fetching talents for a person")
     def executeOn(self, event):
-        if event.hasUser():
+        logging.debug("Raw data: " + str(event))
+
+        if event.isDirectMsgForTalentBot() \
+                or (event.isForTalentBot() and event.hasAdditionalAddressee()):
             userDataJson = self.slack.api_call("users.info", user=event.userKey())
 
             try:
@@ -37,8 +40,6 @@ class FindTalentsByPerson(Command):
                 self.slack.rtm_send_message(event.channel(), self.getMissingUserErrorMsg(event))
             except RuntimeError as re:
                 logging.error(re)
-        else:
-            self.slack.rtm_send_message(event.channel(), self.getMissingUserErrorMsg(event))
 
     @staticmethod
     def getMissingUserErrorMsg(event):

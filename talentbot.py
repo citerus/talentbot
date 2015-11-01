@@ -1,14 +1,14 @@
 import time
-import sys
 import json
-import re
-import profile
 import logging
 import pprint
+import re
 
 TALENTBOT_USER_ID = 'U0CJKS2DD'
 
 class SlackEvent:
+
+    prefixedTalentBotId = '<@{}>'.format(TALENTBOT_USER_ID)
 
     def __init__(self, jsonStr):
         self.jsonStr = jsonStr
@@ -25,7 +25,16 @@ class SlackEvent:
         
     def isTalentBot(self):
         return self.jsonStr['user'] == TALENTBOT_USER_ID
-        
+
+    def isForTalentBot(self):
+        return self.jsonStr['text'].find(self.prefixedTalentBotId) == 0
+
+    def hasAdditionalAddressee(self):
+        return self.jsonStr['text'].rfind('<@') > 0
+
+    def isDirectMsgForTalentBot(self):
+        return self.jsonStr['channel'].find('D') == 0
+
     def channel(self):
         return self.jsonStr['channel']
         
@@ -42,7 +51,10 @@ class SlackEvent:
         return self.text().replace(keyword, '').strip()
 
     def userKey(self):
-        return self.jsonStr['text'].strip().replace(':', '')[2:-1]
+        jsonStrText = self.jsonStr['text']
+        jsonStrText = jsonStrText.replace(self.prefixedTalentBotId,'')
+        jsonStrText = jsonStrText.replace(':','').strip()[2:-1]
+        return jsonStrText
 
 class SlackUser:
 
