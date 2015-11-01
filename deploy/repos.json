@@ -1,0 +1,8 @@
+{
+    "citerus/talentbot": {
+	"path": "/home/ubuntu/talentbot",
+	"key": "secretkey-here",
+	"action": [["git", "pull", "origin", "master"],
+		   ["./deploy/restart.sh"]]
+    }
+}
