@@ -32,13 +32,29 @@ class FindTalentsByPerson(Command):
 
             listOfTalents = self.trello.getTalentsByEmail(user.email)
             if listOfTalents != '':
-                self.slack.rtm_send_message(event.channel(), 'Om ' + user.name + ': ' + listOfTalents)
+                links = self.formatLinks(user.links)
+                messageString = 'Om ' + user.name + ': ' + links + listOfTalents
+                self.slack.rtm_send_message(event.channel(), messageString)
             else:
                 self.slack.rtm_send_message(event.channel(), user.name + ' har inte lagt till talanger')
         except ValueError:
             self.slack.rtm_send_message(event.channel(), self.getMissingUserErrorMsg(event))
         except RuntimeError as re:
             logging.error(re)
+
+    @staticmethod
+    def formatLinks(userLinks):
+        outputStr = ''
+        if len(userLinks) == 0:
+            return outputStr
+        githubLink = filter(lambda linkText: 'github.com' in linkText, userLinks)
+        outputStr += 'Github: ' + githubLink[0] + ' ' if len(githubLink) > 0 else ''
+        linkedInLink = filter(lambda linkText: 'linkedin.com' in linkText, userLinks)
+        outputStr += 'LinkedIn: ' + linkedInLink[0] + ' ' if len(linkedInLink) > 0 else ''
+        twitterLink = filter(lambda linkText: 'twitter.com' in linkText, userLinks)
+        outputStr += 'Twitter: ' + twitterLink[0] + ' ' if len(twitterLink) > 0 else ''
+        outputStr = '\n' + outputStr + '\n' if len(outputStr) > 0 else outputStr
+        return outputStr
 
     @staticmethod
     def getMissingUserErrorMsg(event):

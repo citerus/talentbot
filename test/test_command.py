@@ -53,7 +53,7 @@ class FindTalentsByPersonTest(unittest.TestCase):
         self.command.slack.rtm_send_message.assert_called_with("D123", 'Ingen person hittades med namnet 56')
 
     def test_shouldGiveNoTalentsAddedErrorMessageForEmptyTalentList(self):
-        slackMsg = '{"ok":true, "user":{"real_name":"testname", "profile":{"email":"test2@citerus.se"}}}'
+        slackMsg = '{"ok":true, "user":{"real_name":"testname", "profile":{"email":"test2@citerus.se", "fields":{}}}}'
         eventData = SlackEvent(json.loads('{"user":"123","text":"456","channel":"D123"}'))
         self.command.slack.api_call = MagicMock(return_value=slackMsg)
         self.command.slack.rtm_send_message = MagicMock(return_value=None)
@@ -75,7 +75,7 @@ class FindTalentsByPersonTest(unittest.TestCase):
         self.command.slack.rtm_send_message.assert_not_called()
 
     def test_shouldAcceptDirectMessageWithoutAdditionalAddressee(self):
-        slackMsg = '{"ok":true, "user":{"real_name":"testname", "profile":{"email":"test2@citerus.se"}}}'
+        slackMsg = '{"ok":true, "user":{"real_name":"testname", "profile":{"email":"test2@citerus.se", "fields":{}}}}'
         eventData = SlackEvent(json.loads('{"user":"123","text":"456","channel":"D123"}'))
         self.command.slack.api_call = MagicMock(return_value=slackMsg)
         self.command.slack.rtm_send_message = MagicMock(return_value=None)
@@ -87,7 +87,7 @@ class FindTalentsByPersonTest(unittest.TestCase):
         self.command.slack.rtm_send_message.assert_called_with("D123", 'testname har inte lagt till talanger')
 
     def test_shouldAcceptIndirectMessageWithAdditionalAddressee(self):
-        slackResponse = '{"ok":true, "user":{"real_name":"testname", "profile":{"email":"test2@citerus.se"}}}'
+        slackResponse = '{"ok":true, "user":{"real_name":"testname", "profile":{"email":"test2@citerus.se", "fields":{}}}}'
         userIds = '<@{0}>: <@{1}>'.format(TALENTBOT_USER_ID, exampleUserId)
         slackMsg = '{"user":"123","text":"' + userIds + '","channel":"C123"}'
         eventData = SlackEvent(json.loads(slackMsg))
@@ -101,7 +101,7 @@ class FindTalentsByPersonTest(unittest.TestCase):
         self.command.slack.rtm_send_message.assert_called_with("C123", 'testname har inte lagt till talanger')
 
     def test_shouldNotAcceptIndirectMessageWithoutAdditionalAddressee(self):
-        slackResponse = '{"ok":true, "user":{"real_name":"testname", "profile":{"email":"test2@citerus.se"}}}'
+        slackResponse = '{"ok":true, "user":{"real_name":"testname", "profile":{"email":"test2@citerus.se", "fields":{}}}}'
         userIds = '<@{0}>:'.format(TALENTBOT_USER_ID)
         slackMsg = '{"user":"123","text":"' + userIds + '","channel":"C123"}'
         eventData = SlackEvent(json.loads(slackMsg))
@@ -112,6 +112,45 @@ class FindTalentsByPersonTest(unittest.TestCase):
         result = self.command.shouldTriggerOn(eventData)
 
         self.assertFalse(result)
+
+    def test_shouldAddNoLinksIfNoneAreFound(self):
+        slackMsg = '{"ok":true, "user":{"real_name":"testname", "profile":{"email":"test2@citerus.se", "fields":{}}}}'
+        eventData = SlackEvent(json.loads('{"user":"123","text":"456","channel":"D123"}'))
+        self.command.slack.api_call = MagicMock(return_value=slackMsg)
+        self.command.slack.rtm_send_message = MagicMock(return_value=None)
+        self.command.trello.getTalentsByEmail = MagicMock(return_value='Java')
+
+        self.assertTrue(self.command.shouldTriggerOn(eventData))
+        self.command.executeOn(eventData)
+
+        self.command.slack.rtm_send_message.assert_called_with("D123", 'Om testname: Java')
+
+    def test_shouldAddLinkedInLinkToResponseIfFound(self):
+        slackMsg = '{"ok":true, "user":{"real_name":"testname", "profile":{"email":"test2@citerus.se", \
+        "fields":{"Xf0DJGDC7M": {"alt": "", "value": "https://www.linkedin.com/profile/view?id=AAAAA"}}}}}'
+        eventData = SlackEvent(json.loads('{"user":"123","text":"456","channel":"D123"}'))
+        self.command.slack.api_call = MagicMock(return_value=slackMsg)
+        self.command.slack.rtm_send_message = MagicMock(return_value=None)
+        self.command.trello.getTalentsByEmail = MagicMock(return_value='Java')
+
+        self.assertTrue(self.command.shouldTriggerOn(eventData))
+        self.command.executeOn(eventData)
+
+        self.command.slack.rtm_send_message.assert_called_with("D123", 'Om testname: \nLinkedIn: https://www.linkedin.com/profile/view?id=AAAAA \nJava')
+
+    def test_shouldAddMultipleLinksToResponseIfFound(self):
+        slackMsg = '{"ok":true, "user":{"real_name":"testname", "profile":{"email":"test2@citerus.se", \
+        "fields":{"Xf0DJGDC7M": {"alt": "", "value": "https://www.linkedin.com/profile/view?id=AAAAA"}, \
+        "Xf0DJGDC7N": {"alt": "", "value": "https://www.github.com/username/"}}}}}'
+        eventData = SlackEvent(json.loads('{"user":"123","text":"456","channel":"D123"}'))
+        self.command.slack.api_call = MagicMock(return_value=slackMsg)
+        self.command.slack.rtm_send_message = MagicMock(return_value=None)
+        self.command.trello.getTalentsByEmail = MagicMock(return_value='Java')
+
+        self.assertTrue(self.command.shouldTriggerOn(eventData))
+        self.command.executeOn(eventData)
+
+        self.command.slack.rtm_send_message.assert_called_with("D123", 'Om testname: \nGithub: https://www.github.com/username/ LinkedIn: https://www.linkedin.com/profile/view?id=AAAAA \nJava')
 
 def eventWithText(text):
     event = {'text': text}

@@ -64,6 +64,7 @@ class SlackUser:
 
         self.name = self.userData['user']['real_name']
         self.email = self.userData['user']['profile']['email']
+        self.links = [v['value'] for v in self.userData['user']['profile']['fields'].values() if len(v['value']) > 0]
 
     @staticmethod
     def verifyUserData(userData):
