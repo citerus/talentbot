@@ -45,7 +45,7 @@ class FindTalentsByPerson(Command):
         return 'Ingen person hittades med namnet ' + event.text().strip()[1:]
 
 
-class FindPeopleByTalent(Command):
+class FindPersonsByTalent(Command):
     def __init__(self, slack, trello):
         self.slack = slack
         self.trello = trello

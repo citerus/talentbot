@@ -3,7 +3,7 @@ from slackclient import SlackClient
 from trello import TrelloClient
 from talents import TrelloTalents
 from talentbot import TalentBot
-from command import Help, FindPeopleByTalent, FindTalentsByPerson, GetAllTalents
+from command import Help, FindPersonsByTalent, FindTalentsByPerson, GetAllTalents
 import logging
 from envvars import verifyEnvironmentVariables
 
@@ -29,7 +29,7 @@ def main():
     trello = TrelloTalents(trello_client)
     talentBot = TalentBot(slack)
     talentBot.addCommand(Help(slack))
-    talentBot.addCommand(FindPeopleByTalent(slack, trello))
+    talentBot.addCommand(FindPersonsByTalent(slack, trello))
     talentBot.addCommand(FindTalentsByPerson(slack, trello))
     talentBot.addCommand(GetAllTalents(slack, trello))
     talentBot.run()
