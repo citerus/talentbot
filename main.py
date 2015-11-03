@@ -1,10 +1,10 @@
-import sys, os
+import sys, os, signal
 from slackclient import SlackClient
 from trello import TrelloClient
 from talents import TrelloTalents
 from talentbot import TalentBot
 from command import Help, FindPersonsByTalent, FindTalentsByPerson, GetAllTalents
-import logging
+import logging.config
 from envvars import verifyEnvironmentVariables
 
 # Set these variables in your local environment (export TRELLO_TOKEN=abcd)
@@ -14,6 +14,10 @@ tr_token    = os.environ.get('TRELLO_TOKEN')
 tokenSecret = os.environ.get('TRELLO_TOKEN_SECRET')
 token       = os.environ.get('SLACK_TOKEN')
 
+def signal_handler(signal, frame):
+    logging.info('Execution interrupted')
+    sys.exit(0)
+
 def main():
     verifyEnvironmentVariables(TRELLO_API_KEY=apiKey,
                                TRELLO_API_SECRET=apiSecret,
@@ -21,8 +25,9 @@ def main():
                                TRELLO_TOKEN_SECRET=tokenSecret,
                                SLACK_TOKEN=token)
 
-    # TODO Set log level from command line, default to INFO
-    logging.basicConfig(filename='talentbot.log', level=logging.INFO)
+    logging.config.fileConfig('logging.conf')
+    signal.signal(signal.SIGINT, signal_handler)
+    signal.signal(signal.SIGTERM, signal_handler)
 
     slack = SlackClient(token)
     trello_client = TrelloClient(apiKey, apiSecret, tr_token, tokenSecret)
