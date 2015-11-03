@@ -3,7 +3,7 @@ from talentbot import SlackUser
 from wraplog import wraplog
 import logging
 
-class Command (object):
+class Command:
     def shouldTriggerOn(self, event):
         return False
 

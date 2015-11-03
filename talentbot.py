@@ -83,8 +83,12 @@ class TalentBot:
         self.commands = []
     
     def addCommand(self, command):
-        self.commands.append(command)
-        
+        if len(command) > 1:
+            for cmd in command:
+                self.commands.append(cmd)
+        else:
+            self.commands.append(command)
+
     def run(self):
         if not self.slack.rtm_connect():
             logging.critical("Error: Failed to connect to Slack servers")

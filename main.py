@@ -3,7 +3,6 @@ from slackclient import SlackClient
 from trello import TrelloClient
 from talents import TrelloTalents
 from talentbot import TalentBot
-from command import Help, FindPersonsByTalent, FindTalentsByPerson, GetAllTalents
 import logging.config
 from envvars import verifyEnvironmentVariables
 
@@ -17,6 +16,16 @@ token       = os.environ.get('SLACK_TOKEN')
 def signal_handler(signal, frame):
     logging.info('Execution interrupted')
     sys.exit(0)
+
+def getCommands(slack, trello):
+    import inspect, new, command
+    from command import Command
+
+    commands = []
+    for _, obj in inspect.getmembers(command):
+        if inspect.isclass(obj) and issubclass(obj, Command) and obj != Command:
+            commands.append(new.instance(obj, {'slack': slack, 'trello': trello}))
+    return commands
 
 def main():
     verifyEnvironmentVariables(TRELLO_API_KEY=apiKey,
@@ -33,10 +42,7 @@ def main():
     trello_client = TrelloClient(apiKey, apiSecret, tr_token, tokenSecret)
     trello = TrelloTalents(trello_client)
     talentBot = TalentBot(slack)
-    talentBot.addCommand(Help(slack))
-    talentBot.addCommand(FindPersonsByTalent(slack, trello))
-    talentBot.addCommand(FindTalentsByPerson(slack, trello))
-    talentBot.addCommand(GetAllTalents(slack, trello))
+    talentBot.addCommand(getCommands(slack, trello))
     talentBot.run()
 
 if __name__ == "__main__":
