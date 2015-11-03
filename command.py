@@ -47,12 +47,9 @@ class FindTalentsByPerson(Command):
         outputStr = ''
         if len(userLinks) == 0:
             return outputStr
-        githubLink = filter(lambda linkText: 'github.com' in linkText, userLinks)
-        outputStr += 'Github: ' + githubLink[0] + ' ' if len(githubLink) > 0 else ''
-        linkedInLink = filter(lambda linkText: 'linkedin.com' in linkText, userLinks)
-        outputStr += 'LinkedIn: ' + linkedInLink[0] + ' ' if len(linkedInLink) > 0 else ''
-        twitterLink = filter(lambda linkText: 'twitter.com' in linkText, userLinks)
-        outputStr += 'Twitter: ' + twitterLink[0] + ' ' if len(twitterLink) > 0 else ''
+        for key,value in {'Github':'github.com','LinkedIn':"linkedin.com",'Twitter':'twitter.com'}.iteritems():
+            link = filter(lambda linkText: value in linkText, userLinks)
+            outputStr += key + ': ' + link[0] + ' ' if len(link) > 0 else ''
         outputStr = '\n' + outputStr + '\n' if len(outputStr) > 0 else outputStr
         return outputStr
 
