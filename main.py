@@ -22,9 +22,10 @@ def getCommands(slack, trello):
     from command import Command
 
     commands = []
-    for _, obj in inspect.getmembers(command):
+    for name, obj in inspect.getmembers(command):
         if inspect.isclass(obj) and issubclass(obj, Command) and obj != Command:
             commands.append(new.instance(obj, {'slack': slack, 'trello': trello}))
+            logging.info('Found and instantiated command ' + name)
     return commands
 
 def main():
