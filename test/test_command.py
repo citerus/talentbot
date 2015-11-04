@@ -62,7 +62,7 @@ class FindTalentsByPersonTest(unittest.TestCase):
         self.assertTrue(self.command.shouldTriggerOn(eventData))
         self.command.executeOn(eventData)
 
-        self.command.slack.rtm_send_message.assert_called_with("D123", 'testname har inte lagt till talanger')
+        self.command.slack.rtm_send_message.assert_called_with("D123", 'Om testname: inga talanger har lagts till')
 
     def test_shouldThrowRuntimeErrorForUnknownSlackError(self):
         slackErrMsg = '{"ok":false}'
@@ -84,7 +84,7 @@ class FindTalentsByPersonTest(unittest.TestCase):
         self.assertTrue(self.command.shouldTriggerOn(eventData))
         self.command.executeOn(eventData)
 
-        self.command.slack.rtm_send_message.assert_called_with("D123", 'testname har inte lagt till talanger')
+        self.command.slack.rtm_send_message.assert_called_with("D123", 'Om testname: inga talanger har lagts till')
 
     def test_shouldAcceptIndirectMessageWithAdditionalAddressee(self):
         slackResponse = '{"ok":true, "user":{"real_name":"testname", "profile":{"email":"test2@citerus.se", "fields":{}}}}'
@@ -98,7 +98,7 @@ class FindTalentsByPersonTest(unittest.TestCase):
         self.assertTrue(self.command.shouldTriggerOn(eventData))
         self.command.executeOn(eventData)
 
-        self.command.slack.rtm_send_message.assert_called_with("C123", 'testname har inte lagt till talanger')
+        self.command.slack.rtm_send_message.assert_called_with("C123", 'Om testname: inga talanger har lagts till')
 
     def test_shouldNotAcceptIndirectMessageWithoutAdditionalAddressee(self):
         slackResponse = '{"ok":true, "user":{"real_name":"testname", "profile":{"email":"test2@citerus.se", "fields":{}}}}'
@@ -151,6 +151,20 @@ class FindTalentsByPersonTest(unittest.TestCase):
         self.command.executeOn(eventData)
 
         self.command.slack.rtm_send_message.assert_called_with("D123", 'Om testname: \nGithub: https://www.github.com/username/ LinkedIn: https://www.linkedin.com/profile/view?id=AAAAA \nJava')
+
+    def test_shouldReturnLinksEvenIfNoTalentsHaveBeenAdded(self):
+        slackMsg = '{"ok":true, "user":{"real_name":"testname", "profile":{"email":"test2@citerus.se", \
+        "fields":{"Xf0DJGDC7M": {"alt": "", "value": "https://www.linkedin.com/profile/view?id=AAAAA"}, \
+        "Xf0DJGDC7N": {"alt": "", "value": "https://www.github.com/username/"}}}}}'
+        eventData = SlackEvent(json.loads('{"user":"123","text":"456","channel":"D123"}'))
+        self.command.slack.api_call = MagicMock(return_value=slackMsg)
+        self.command.slack.rtm_send_message = MagicMock(return_value=None)
+        self.command.trello.getTalentsByEmail = MagicMock(return_value='')
+
+        self.assertTrue(self.command.shouldTriggerOn(eventData))
+        self.command.executeOn(eventData)
+
+        self.command.slack.rtm_send_message.assert_called_with("D123", 'Om testname: \nGithub: https://www.github.com/username/ LinkedIn: https://www.linkedin.com/profile/view?id=AAAAA \ninga talanger har lagts till')
 
 def eventWithText(text):
     event = {'text': text}

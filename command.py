@@ -31,12 +31,12 @@ class FindTalentsByPerson(Command):
             logging.info(user.name + " : " + user.email)
 
             listOfTalents = self.trello.getTalentsByEmail(user.email)
+            links = self.formatLinks(user.links)
             if listOfTalents != '':
-                links = self.formatLinks(user.links)
                 messageString = 'Om ' + user.name + ': ' + links + listOfTalents
-                self.slack.rtm_send_message(event.channel(), messageString)
             else:
-                self.slack.rtm_send_message(event.channel(), user.name + ' har inte lagt till talanger')
+                messageString = 'Om ' + user.name + ': ' + links + 'inga talanger har lagts till'
+            self.slack.rtm_send_message(event.channel(), messageString)
         except ValueError:
             self.slack.rtm_send_message(event.channel(), self.getMissingUserErrorMsg(event))
         except RuntimeError as re:
