@@ -26,6 +26,11 @@ Installera nödvändiga paket:
 
 > pip install -r requirements.txt
 
+## Tester
+
+Kör alla tester:
+```nosetests```
+
 ### Python
 
 * [Introduktion till Pythons pakethantering](http://www.dabapps.com/blog/introduction-to-pip-and-virtualenv-python/)
