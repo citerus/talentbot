@@ -67,6 +67,6 @@ local/
 .idea/
 
 #temp files
-.*~
+*~
 /keys.sh
 /keys.py
