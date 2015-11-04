@@ -1,4 +1,3 @@
-from trello import TrelloClient
 from itertools import chain as flatten
 
 TRELLO_BOARD_ID = 'hud22dPi'
@@ -44,7 +43,8 @@ class TrelloTalents:
         unique_cards = list(set([card.name for card in flatten(all_cards)]))
         return convertListToUtf8String(unique_cards)
         
-    def is_match(self, card, talent_name):
+    @staticmethod
+    def is_match(card, talent_name):
         return card.name.decode('utf-8').lower() == talent_name.lower()
 
 def convertListToUtf8String(strList):
