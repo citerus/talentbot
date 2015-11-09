@@ -8,7 +8,7 @@ class Command (object):
         return False
 
     def executeOn(self, event):
-        return
+        pass
 
 class FindTalentsByPerson(Command):
     def __init__(self, slack, trello):
@@ -81,7 +81,6 @@ class Help(Command):
     @wraplog("Executing help command")
     def executeOn(self, event):
         self.slack.rtm_send_message(event.channel(), ":paperclip: It looks like you need help.")
-        return
 
 class GetAllTalents(Command):
     def __init__(self, slack, trello):
@@ -94,4 +93,3 @@ class GetAllTalents(Command):
     @wraplog("Executing GetAllTalents command")
     def executeOn(self, event):
         self.slack.rtm_send_message(event.channel(), "Talanger i systemet: " + self.trello.getAllTalents())
-        return
