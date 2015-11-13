@@ -1,5 +1,5 @@
 import json
-from talentbot import SlackUser
+from slackuser import SlackUser
 from wraplog import wraplog
 import logging
 

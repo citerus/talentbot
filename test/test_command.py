@@ -1,7 +1,7 @@
 import unittest
 from mock import patch, MagicMock
 from command import Help, FindTalentsByPerson
-from talentbot import SlackEvent, TALENTBOT_USER_ID
+from slackevent import SlackEvent, TALENTBOT_USER_ID
 import json
 
 exampleUserId = 'U0CJKS2DA'

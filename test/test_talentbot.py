@@ -1,5 +1,5 @@
 import unittest
-from talentbot import SlackEvent, TALENTBOT_USER_ID
+from slackevent import SlackEvent, TALENTBOT_USER_ID
 
 class SlackEventTest(unittest.TestCase):
     def testCanIdentifyMessage(self):
