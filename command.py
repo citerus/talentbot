@@ -4,8 +4,6 @@ from wraplog import wraplog
 import logging
 
 class Command:
-    importance = 0
-
     def shouldTriggerOn(self, event):
         return False
 
