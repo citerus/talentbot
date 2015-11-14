@@ -13,7 +13,7 @@ tr_token    = os.environ.get('TRELLO_TOKEN')
 tokenSecret = os.environ.get('TRELLO_TOKEN_SECRET')
 token       = os.environ.get('SLACK_TOKEN')
 
-def signal_handler(signal, frame):
+def log_and_exit(signal, frame):
     logging.info('Execution interrupted')
     sys.exit(0)
 
@@ -36,8 +36,10 @@ def main():
                                SLACK_TOKEN=token)
 
     logging.config.fileConfig('logging.conf')
-    signal.signal(signal.SIGINT, signal_handler)
-    signal.signal(signal.SIGTERM, signal_handler)
+
+    # Register interrupt handler
+    signal.signal(signal.SIGINT, log_and_exit)
+    signal.signal(signal.SIGTERM, log_and_exit)
 
     slack = SlackClient(token)
     trello_client = TrelloClient(apiKey, apiSecret, tr_token, tokenSecret)
