@@ -1,4 +1,4 @@
-# Talentbot
+# Talentbot [![Build Status](https://travis-ci.org/citerus/talentbot.svg?branch=master)](https://travis-ci.org/citerus/talentbot)
 
 Talentbot ska minimera tiden det tar att ta reda på vad en kollega kan och vill jobba med, och maximera förståelsen för vilka kunskaper som finns (och inte finns) i företaget.
 
