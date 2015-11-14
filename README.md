@@ -29,7 +29,7 @@ Installera nödvändiga paket:
 ## Tester
 
 Kör alla tester:
-`nosetests`
+`bin/nose2`
 
 ### Python
 
