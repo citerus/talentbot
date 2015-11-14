@@ -26,6 +26,12 @@ class StartupTest(unittest.TestCase):
         listWithHelp = filter(lambda cls: isinstance(cls, Help), commands)
         self.assertEquals(len(listWithHelp), 1)
 
+    def test_getCommandsShouldReturnCommandsSortedInDescendingPriority(self):
+        slack = trello = None
+        commands = getCommands(slack, trello)
+        self.assertTrue(len(commands) > 0)
+        self.assertTrue(all(commands[i].importance >= commands[i+1].importance for i in xrange(len(commands)-1)))
+
 def main():
     unittest.main()
 

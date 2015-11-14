@@ -26,7 +26,7 @@ def getCommands(slack, trello):
         if inspect.isclass(obj) and issubclass(obj, Command) and obj != Command:
             commands.append(new.instance(obj, {'slack': slack, 'trello': trello}))
             logging.info('Found and instantiated command ' + name)
-    return commands
+    return sorted(commands, lambda x, y: cmp(y.importance, x.importance))
 
 def main():
     verifyEnvironmentVariables(TRELLO_API_KEY=apiKey,

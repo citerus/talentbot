@@ -4,6 +4,8 @@ from wraplog import wraplog
 import logging
 
 class Command:
+    importance = 0
+
     def shouldTriggerOn(self, event):
         return False
 
@@ -11,6 +13,8 @@ class Command:
         pass
 
 class FindTalentsByPerson(Command):
+    importance = 4
+
     def __init__(self, slack, trello):
         self.slack = slack
         self.trello = trello
@@ -46,6 +50,8 @@ class FindTalentsByPerson(Command):
 
 
 class FindPersonsByTalent(Command):
+    importance = 5
+
     def __init__(self, slack, trello):
         self.slack = slack
         self.trello = trello
@@ -72,6 +78,8 @@ class FindPersonsByTalent(Command):
         return '\n- ' + '\n- '.join(matched_profiles)
 
 class Help(Command):
+    importance = 10
+
     def __init__(self, slack):
         self.slack = slack
 
@@ -83,6 +91,8 @@ class Help(Command):
         self.slack.rtm_send_message(event.channel(), ":paperclip: It looks like you need help.")
 
 class GetAllTalents(Command):
+    importance = 9
+
     def __init__(self, slack, trello):
         self.slack = slack
         self.trello = trello
