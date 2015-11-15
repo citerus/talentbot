@@ -53,7 +53,7 @@ class TalentBot:
             logging.debug("Incoming message\n- %s" % event)
 
         if event.textContainsKeyword('help'):
-            self.slack.rtm_send_message(event.channel(), ":paperclip: It looks like you need help." + '\n'.join(cmd.help() for cmd in self.commands))
+            self.slack.rtm_send_message(event.channel(), ":paperclip: It looks like you need some help.\n" + '\n'.join(cmd.help() for cmd in self.commands))
             return
 
         for command in self.commands:
