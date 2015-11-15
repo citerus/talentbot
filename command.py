@@ -10,12 +10,18 @@ class Command:
     def executeOn(self, event):
         pass
 
+    def help(self):
+        return ""
+
 class FindTalentsByPerson(Command):
     importance = 4
 
     def __init__(self, slack, trello):
         self.slack = slack
         self.trello = trello
+
+    def help(self):
+        return "`@username` to find out what talents that person has."
 
     def shouldTriggerOn(self, event):
         return event.isDirectMsgForTalentBot() \
@@ -54,6 +60,9 @@ class FindPersonsByTalent(Command):
         self.slack = slack
         self.trello = trello
 
+    def help(self):
+        return "`talent scrum` to find out who knows scrum."
+
     def shouldTriggerOn(self, event):
         return event.textContainsKeyword('talent')
 
@@ -75,25 +84,15 @@ class FindPersonsByTalent(Command):
         matched_profiles = [p['real_name'] for p in profiles if ('email' in p) and p['email'] in email_addresses]
         return '\n- ' + '\n- '.join(matched_profiles)
 
-class Help(Command):
-    importance = 10
-
-    def __init__(self, slack):
-        self.slack = slack
-
-    def shouldTriggerOn(self, event):
-        return event.textContainsKeyword('help')
-
-    @wraplog("Executing help command")
-    def executeOn(self, event):
-        self.slack.rtm_send_message(event.channel(), ":paperclip: It looks like you need help.")
-
 class GetAllTalents(Command):
     importance = 9
 
     def __init__(self, slack, trello):
         self.slack = slack
         self.trello = trello
+
+    def help(self):
+        return "`all-talents` to get all known talents."
 
     def shouldTriggerOn(self, event):
         return event.textContainsKeyword('all-talents')

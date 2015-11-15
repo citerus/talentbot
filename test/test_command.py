@@ -1,26 +1,10 @@
 import unittest
 from mock import patch, MagicMock
-from command import Help, FindTalentsByPerson
+from command import FindTalentsByPerson
 from slackevent import SlackEvent, TALENTBOT_USER_ID
 import json
 
 exampleUserId = 'U0CJKS2DA'
-
-class HelpTest(unittest.TestCase):
-
-    @patch('slackclient.SlackClient')
-    def setUp(self, slack):
-        self.command = Help(slack)
-
-    def test_shouldTriggerOnKeywordWithArgument(self):
-        command = self.command
-        result = command.shouldTriggerOn(eventWithText("help me"))
-        self.assertTrue(result)
-
-    def test_shouldTriggerOnSingleKeyword(self):
-        command = self.command
-        result = command.shouldTriggerOn(eventWithText("help"))
-        self.assertTrue(result)
 
 class FindTalentsByPersonTest(unittest.TestCase):
 
