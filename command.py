@@ -21,7 +21,7 @@ class FindTalentsByPerson(Command):
         self.trello = trello
 
     def help(self):
-        return "Type '@username' to find out what talents that person has."
+        return "`@username` to find out what talents that person has."
 
     def shouldTriggerOn(self, event):
         return event.isDirectMsgForTalentBot() \
@@ -61,7 +61,7 @@ class FindPersonsByTalent(Command):
         self.trello = trello
 
     def help(self):
-        return "Type 'talent scrum' to find out who knows scrum."
+        return "`talent scrum` to find out who knows scrum."
 
     def shouldTriggerOn(self, event):
         return event.textContainsKeyword('talent')
@@ -92,7 +92,7 @@ class GetAllTalents(Command):
         self.trello = trello
 
     def help(self):
-        return "Type 'all-talents' to get all known talents."
+        return "`all-talents` to get all known talents."
 
     def shouldTriggerOn(self, event):
         return event.textContainsKeyword('all-talents')
