@@ -105,7 +105,7 @@ class GetAllTalents(Command):
         self.trello = trello
 
     def help(self):
-        return "Type 'all-talents' to get all known talents"
+        return "Type 'all-talents' to get all known talents."
 
     def shouldTriggerOn(self, event):
         return event.textContainsKeyword('all-talents')
