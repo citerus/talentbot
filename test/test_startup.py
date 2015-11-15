@@ -1,7 +1,7 @@
 import unittest
 from envvars import verifyEnvironmentVariablesArgs
 from main import getCommands
-from command import Command, Help
+from command import Command
 
 class StartupTest(unittest.TestCase):
     def test_EmptyTrelloApiKeyReturnsErrorMessage(self):
@@ -23,8 +23,6 @@ class StartupTest(unittest.TestCase):
         self.assertTrue(len(commands) > 0)
         filteredList = filter(lambda cls: isinstance(cls, Command), commands)
         self.assertEquals(len(filteredList), len(commands))
-        listWithHelp = filter(lambda cls: isinstance(cls, Help), commands)
-        self.assertEquals(len(listWithHelp), 1)
 
     def test_getCommandsShouldReturnCommandsSortedInDescendingPriority(self):
         slack = trello = None
