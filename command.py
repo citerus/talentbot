@@ -10,12 +10,18 @@ class Command:
     def executeOn(self, event):
         pass
 
+    def help(self):
+        return ""
+
 class FindTalentsByPerson(Command):
     importance = 4
 
     def __init__(self, slack, trello):
         self.slack = slack
         self.trello = trello
+
+    def help(self):
+        return "Type '@username' to find out what talents that person has."
 
     def shouldTriggerOn(self, event):
         return event.isDirectMsgForTalentBot() \
@@ -53,6 +59,9 @@ class FindPersonsByTalent(Command):
     def __init__(self, slack, trello):
         self.slack = slack
         self.trello = trello
+
+    def help(self):
+        return "Type 'talent scrum' to find out who knows scrum."
 
     def shouldTriggerOn(self, event):
         return event.textContainsKeyword('talent')
@@ -94,6 +103,9 @@ class GetAllTalents(Command):
     def __init__(self, slack, trello):
         self.slack = slack
         self.trello = trello
+
+    def help(self):
+        return "Type 'all-talents' to get all known talents"
 
     def shouldTriggerOn(self, event):
         return event.textContainsKeyword('all-talents')
