@@ -21,10 +21,6 @@ class TrelloTalents:
         return users_talent_cards
 
     def getPersonEmailsByTalent(self, talentName):
-        listLengthFn = lambda c: len([c for c in l.list_cards() if talentName.lower() == c.name.decode('utf-8').lower()]) > 0
-        return [l.name for l in self.talentBoard().get_lists('open') if listLengthFn]
-    
-    def getPersonEmailsByTalent2(self, talentName):
         # We're working with the TrelloClient wrapper here,
         # so the lists and the cards are types defined by TrelloClient
         all_lists = self.talentBoard().open_lists()

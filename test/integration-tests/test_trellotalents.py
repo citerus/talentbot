@@ -39,13 +39,13 @@ class TrelloTest(unittest.TestCase):
         
     def test_fetch_single_match(self):
         talent = "Juliett"
-        emails = self.tt.getPersonEmailsByTalent2(talent)
+        emails = self.tt.getPersonEmailsByTalent(talent)
         self.assertEqual(1, len(emails))
         self.assertEqual("test.test@citerus.se", emails[0])
         
     def test_fetch_multiple_matches(self):
         talent = self.COMMON_TALENT
-        emails = self.tt.getPersonEmailsByTalent2(talent)
+        emails = self.tt.getPersonEmailsByTalent(talent)
         self.assertTrue(len(emails) > 1)
         self.assertIn("tobias.fors@citerus.se", emails)
         
