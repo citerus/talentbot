@@ -75,7 +75,7 @@ class FindPersonsByTalent(Command):
             people = self.persons_by_emails(person_emails)
             self.slack.rtm_send_message(event.channel(), "Personer med talangen " + talent + ": " + people)
         else:
-            self.slack.rtm_send_message(event.channel(), "Talangen " + talent + " ej funnen")
+            self.slack.rtm_send_message(event.channel(), "Talang saknas i meddelandetexten")
 
     def persons_by_emails(self, email_addresses):
         all_users = json.loads(self.slack.api_call("users.list"))['members']

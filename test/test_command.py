@@ -1,10 +1,11 @@
 import unittest
 from mock import patch, MagicMock
-from command import FindTalentsByPerson
+from command import FindTalentsByPerson, FindPersonsByTalent
 from slackevent import SlackEvent, TALENTBOT_USER_ID
 import json
 
 exampleUserId = 'U0CJKS2DA'
+defaultSlackResponse = '{"ok":true, "user":{"real_name":"testname", "profile":{"email":"test2@citerus.se"}}}'
 
 class FindTalentsByPersonTest(unittest.TestCase):
 
@@ -96,6 +97,48 @@ class FindTalentsByPersonTest(unittest.TestCase):
         result = self.command.shouldTriggerOn(eventData)
 
         self.assertFalse(result)
+
+
+class FindPersonsByTalentTest(unittest.TestCase):
+
+    @patch('slackclient.SlackClient')
+    @patch('trello.TrelloClient')
+    def setUp(self, slack, trello):
+        self.command = FindPersonsByTalent(slack, trello)
+
+    def test_shouldTriggerOnMessageContainingTalentKeywordAndName(self):
+        slackMsg = '{"user":"123","text":"talent Java","channel":"C123"}'
+        eventData = SlackEvent(json.loads(slackMsg))
+        self.command.slack.api_call = MagicMock(return_value=defaultSlackResponse)
+        self.command.slack.rtm_send_message = MagicMock(return_value=None)
+        self.command.trello.getTalentsByEmail = MagicMock(return_value='')
+
+        result = self.command.shouldTriggerOn(eventData)
+
+        self.assertTrue(result)
+
+    def test_shouldNotTriggerOnMessageMissingKeyword(self):
+        slackMsg = '{"user":"123","text":"blab Java","channel":"C123"}'
+        eventData = SlackEvent(json.loads(slackMsg))
+        self.command.slack.api_call = MagicMock(return_value=defaultSlackResponse)
+        self.command.slack.rtm_send_message = MagicMock(return_value=None)
+        self.command.trello.getTalentsByEmail = MagicMock(return_value='')
+
+        result = self.command.shouldTriggerOn(eventData)
+
+        self.assertFalse(result)
+
+    def test_shouldSendErrorMessageIfTalentNotFound(self):
+        slackMsg = '{"user":"123","text":"talent","channel":"C123"}'
+        eventData = SlackEvent(json.loads(slackMsg))
+        self.command.slack.api_call = MagicMock(return_value=defaultSlackResponse)
+        self.command.slack.rtm_send_message = MagicMock(return_value=None)
+        self.command.trello.getPersonEmailsByTalent2 = MagicMock(return_value='')
+
+        result = self.command.executeOn(eventData)
+
+        self.assertFalse(result)
+        self.command.slack.rtm_send_message.assert_called_with("C123", "Talang saknas i meddelandetexten")
 
 def eventWithText(text):
     event = {'text': text}
