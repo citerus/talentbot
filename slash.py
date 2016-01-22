@@ -19,6 +19,9 @@ def health():
 def talent():
 
     request_data = request.form
+    print 'Has: ' , slash_token
+    print 'Received: ', request_data['token']
+    
     if request_data['token'] == slash_token:
         text = request_data['text']
         return 'Did you say ' + text + '?'
