@@ -2,7 +2,7 @@ import os
 from flask import Flask, request
 
 # Set these variables in your local environment (export TRELLO_TOKEN=abcd)
-slash_token = os.environ.get('SLASH_TOKEN')
+#slash_token = os.environ.get('SLASH_TOKEN')
 apiKey      = os.environ.get('TRELLO_API_KEY')
 apiSecret   = os.environ.get('TRELLO_API_SECRET')
 tr_token    = os.environ.get('TRELLO_TOKEN')
@@ -18,8 +18,9 @@ def health():
 @app.route('/', methods=['POST'])
 def talent():
 
+    slash_token = os.environ.get('SLASH_TOKEN')
     request_data = request.form
-    print 'Has: ' , slash_token
+    print 'Has: ', slash_token
     print 'Received: ', request_data['token']
     
     if request_data['token'] == slash_token:
