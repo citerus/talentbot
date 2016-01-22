@@ -10,6 +10,10 @@ tokenSecret = os.environ.get('TRELLO_TOKEN_SECRET')
 
 app = Flask(__name__)
 
+@app.route('/')
+def health():
+    return "I'm fine"
+
 @app.route('/', methods=['POST'])
 def talent():
     request_data = request.form
