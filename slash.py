@@ -10,9 +10,11 @@ tokenSecret = os.environ.get('TRELLO_TOKEN_SECRET')
 
 app = Flask(__name__)
 
-@app.route('/')
-def hello():
-    return "Awesome!"
+@app.route('/', methods=['POST'])
+def talent():
+    request_data = request.form
+    text = request_data['text']
+    return 'Did you say ' + text + '?'
 
 if __name__ == "__main__":
     app.run(port=80)
