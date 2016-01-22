@@ -1,1 +1,1 @@
-web: python slash.py
+web: gunicorn slash:app --log-file=-
