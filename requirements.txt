@@ -2,6 +2,7 @@ apipkg==1.4
 execnet==1.4.1
 Flask==0.10.1
 funcsigs==0.4
+gunicorn==19.3.0
 itsdangerous==0.24
 Jinja2==2.8
 MarkupSafe==0.23
