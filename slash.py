@@ -1,5 +1,5 @@
 import os
-from flask import Flask
+from flask import Flask, request
 
 # Set these variables in your local environment (export TRELLO_TOKEN=abcd)
 apiKey      = os.environ.get('TRELLO_API_KEY')
