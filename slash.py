@@ -30,9 +30,9 @@ def talent():
         text = request_data['text']
         slack = SlackClient(slack_token)
         user = SlackUser(slack.api_call("users.info", user=user_id))
-        subject = SlackUser(slack.api_call("users.info", user=text))
+        #subject = SlackUser(slack.api_call("users.info", user=text))
 
-        return 'Did you, ' + user.name + ', want to talk about ' + subject.name + '?'
+        return 'Did you, ' + user.name + ', want to talk about ' + text.len() + '?'
     else:
         return 'Sorry, no'
 
