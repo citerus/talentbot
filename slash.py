@@ -18,12 +18,12 @@ def health():
 @app.route('/', methods=['POST'])
 def talent():
 
-    slash_token = os.environ.get('SLASH_TOKEN')
+    slash_token = os.environ.get('SLASH_TOKEN').strip()
     request_data = request.form
     print 'Has: ', slash_token
     print 'Received: ', request_data['token']
     
-    if request_data['token'] == slash_token:
+    if request_data['token'].strip() == slash_token:
         text = request_data['text']
         return 'Did you say ' + text + '?'
     else:
