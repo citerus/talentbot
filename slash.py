@@ -2,6 +2,7 @@ import os, logging
 from flask import Flask, request
 from slackclient import SlackClient
 from slackuser import SlackUser
+from trello import TrelloClient
 
 logging.config.fileConfig('logging.conf')
 logger = logging.getLogger('fileHandler')
@@ -23,16 +24,15 @@ def health():
 
 @app.route('/', methods=['POST'])
 def talent():
-
     request_data = request.form
     if valid(request_data):
         user_id = request_data['user_id']
         text = request_data['text']
         slack = SlackClient(slack_token)
+        trello_client = TrelloClient(apiKey, apiSecret, tr_token, tokenSecret)
         user = SlackUser(slack.api_call("users.info", user=user_id))
-        #subject = SlackUser(slack.api_call("users.info", user=text))
-
-        return 'Did you, ' + user.name + ', want to talk about ' + text.len() + '?'
+        logger.warn('Received text ' + text)
+        return 'Did you, ' + user.name + ', want to talk about ' + text + '?'
     else:
         return 'Sorry, no'
 
