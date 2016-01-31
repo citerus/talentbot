@@ -4,11 +4,11 @@ from wraplog import wraplog
 import logging
 
 class Command:
-    def shouldTriggerOn(self, event):
+    def shouldTriggerOn(self, text):
         return False
 
-    def executeOn(self, event):
-        pass
+    def executeOn(self, text):
+        return ""
 
     def help(self):
         return ""
@@ -23,15 +23,12 @@ class FindTalentsByPerson(Command):
     def help(self):
         return "`@username` to find out what talents that person has."
 
-    def shouldTriggerOn(self, event):
-        return event.isDirectMsgForTalentBot() \
-               or (event.isForTalentBot() and event.hasAdditionalAddressee())
+    def shouldTriggerOn(self, text):
+        return text.rfind('<@') > 0
 
     @wraplog("Fetching talents for a person")
-    def executeOn(self, event):
-        logging.debug("Raw data: " + str(event))
-
-        userDataJson = self.slack.api_call("users.info", user=event.userKey())
+    def executeOn(self, user_id):
+        userDataJson = self.slack.api_call("users.info", user=user_id)
 
         try:
             user = SlackUser(userDataJson)
@@ -40,17 +37,17 @@ class FindTalentsByPerson(Command):
 
             listOfTalents = self.trello.getTalentsByEmail(user.email)
             if listOfTalents != '':
-                self.slack.rtm_send_message(event.channel(), 'Om ' + user.name + ': ' + listOfTalents)
+                return 'Om ' + user.name + ': ' + listOfTalents
             else:
-                self.slack.rtm_send_message(event.channel(), user.name + ' har inte lagt till talanger')
+                return user.name + ' har inte lagt till talanger'
         except ValueError:
-            self.slack.rtm_send_message(event.channel(), self.getMissingUserErrorMsg(event))
+            self.getMissingUserErrorMsg(text)
         except RuntimeError as re:
             logging.error(re)
 
     @staticmethod
-    def getMissingUserErrorMsg(event):
-        return 'Ingen person hittades med namnet ' + event.text().strip()[1:]
+    def getMissingUserErrorMsg(user_id):
+        return 'Ingen person hittades med id ' + user_id
 
 
 class FindPersonsByTalent(Command):
@@ -63,19 +60,19 @@ class FindPersonsByTalent(Command):
     def help(self):
         return "`talent scrum` to find out who knows scrum."
 
-    def shouldTriggerOn(self, event):
-        return event.textContainsKeyword('talent')
+    def shouldTriggerOn(self, text):
+        return True #inputStr in text
 
     @wraplog("Calling for persons with talent")
-    def executeOn(self, event):
-        talent = event.getKeywordArguments('talent')
+    def executeOn(self, text):
+        talent = text
         logging.info("Calling for persons that know " + talent)
         if len(talent) > 0:
             person_emails = self.trello.getPersonEmailsByTalent2(talent)
             people = self.persons_by_emails(person_emails)
-            self.slack.rtm_send_message(event.channel(), "Personer med talangen " + talent + ": " + people)
+            return "Personer med talangen " + talent + ": " + people
         else:
-            self.slack.rtm_send_message(event.channel(), "Talang saknas i meddelandetexten")
+            return "Talang saknas i meddelandetexten"
 
     def persons_by_emails(self, email_addresses):
         all_users = json.loads(self.slack.api_call("users.list"))['members']
@@ -94,9 +91,9 @@ class GetAllTalents(Command):
     def help(self):
         return "`all-talents` to get all known talents."
 
-    def shouldTriggerOn(self, event):
-        return event.textContainsKeyword('all-talents')
+    def shouldTriggerOn(self, text):
+        return 'all-talents' in text
 
     @wraplog("Executing GetAllTalents command")
-    def executeOn(self, event):
-        self.slack.rtm_send_message(event.channel(), "Talanger i systemet: " + self.trello.getAllTalents())
+    def executeOn(self, text):
+        return "Talanger i systemet: " + self.trello.getAllTalents()
