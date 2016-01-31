@@ -13,37 +13,37 @@ class Command:
     def help(self):
         return ""
 
-class FindTalentsByPerson(Command):
-    importance = 4
-
-    def __init__(self, slack, trello):
-        self.slack = slack
-        self.trello = trello
-
-    def help(self):
-        return "`@username` to find out what talents that person has."
-
-    def shouldTriggerOn(self, text):
-        return text.rfind('<@') > 0
-
-    @wraplog("Fetching talents for a person")
-    def executeOn(self, user_id):
-        userDataJson = self.slack.api_call("users.info", user=user_id)
-
-        try:
-            user = SlackUser(userDataJson)
-
-            logging.info(user.name + " : " + user.email)
-
-            listOfTalents = self.trello.getTalentsByEmail(user.email)
-            if listOfTalents != '':
-                return 'Om ' + user.name + ': ' + listOfTalents
-            else:
-                return user.name + ' har inte lagt till talanger'
-        except ValueError:
-            self.getMissingUserErrorMsg(text)
-        except RuntimeError as re:
-            logging.error(re)
+#class FindTalentsByPerson(Command):
+#    importance = 4
+#
+#    def __init__(self, slack, trello):
+#        self.slack = slack
+#        self.trello = trello
+#
+#    def help(self):
+#        return "`@username` to find out what talents that person has."
+#
+#    def shouldTriggerOn(self, text):
+#        return text.rfind('<@') > 0
+#
+#    @wraplog("Fetching talents for a person")
+#    def executeOn(self, user_id):
+#        userDataJson = self.slack.api_call("users.info", user=user_id)
+#
+#        try:
+#            user = SlackUser(userDataJson)
+#
+#            logging.info(user.name + " : " + user.email)
+#
+#            listOfTalents = self.trello.getTalentsByEmail(user.email)
+#            if listOfTalents != '':
+#                return 'Om ' + user.name + ': ' + listOfTalents
+#            else:
+#                return user.name + ' har inte lagt till talanger'
+#        except ValueError:
+#            self.getMissingUserErrorMsg(text)
+#        except RuntimeError as re:
+#            logging.error(re)
 
     @staticmethod
     def getMissingUserErrorMsg(user_id):
@@ -61,7 +61,7 @@ class FindPersonsByTalent(Command):
         return "`talent scrum` to find out who knows scrum."
 
     def shouldTriggerOn(self, text):
-        return True #inputStr in text
+        return text
 
     @wraplog("Calling for persons with talent")
     def executeOn(self, text):
