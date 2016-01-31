@@ -1,4 +1,4 @@
-import os, logging
+import os, logging, requests
 from flask import Flask, request
 from slackclient import SlackClient
 from slackuser import SlackUser
@@ -40,17 +40,22 @@ def talent():
     if valid(request_data):
         user_id = request_data['user_id']
         text = request_data['text']
+        response_url = request_data['response_url']
         slack = SlackClient(slack_token)
         trello_client = TrelloClient(apiKey, apiSecret, tr_token, tokenSecret)
         trello = TrelloTalents(trello_client)
         logger.warn('Received text ' + text)
         for command in getCommands(slack,trello):
             if command.shouldTriggerOn(text):
-                return command.executeOn(text)
-        # user = SlackUser(slack.api_call("users.info", user=user_id))
-        return 'Did you, ' + user.name + ', want to talk about ' + text + '?'
+                respondWith(command.executeOn(text), response_url)
+        return ''
     else:
         return 'Sorry, no'
+
+def respondWith(response, response_url):
+    payload = {'text': response}
+    headers = {'content-type': 'application/json'}
+    requests.post(response_url, data=json.dumps(payload), header=headers)
 
 def valid(request_data):
     request_token = request_data['token'].strip()
