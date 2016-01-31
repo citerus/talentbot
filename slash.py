@@ -1,4 +1,4 @@
-import os, logging, requests
+import os, logging, requests, json
 from flask import Flask, request
 from slackclient import SlackClient
 from slackuser import SlackUser
@@ -36,6 +36,7 @@ def health():
 
 @app.route('/', methods=['POST'])
 def talent():
+    logger.warn('Received request')
     request_data = request.form
     if valid(request_data):
         user_id = request_data['user_id']
@@ -55,12 +56,13 @@ def talent():
 def respondWith(response, response_url):
     payload = {'text': response}
     headers = {'content-type': 'application/json'}
-    requests.post(response_url, data=json.dumps(payload), header=headers)
+    logger.warn('About to post ' + json.dumps(payload) + ' to ' + response_url) 
+    requests.post(response_url, data=json.dumps(payload), headers=headers)
 
 def valid(request_data):
     request_token = request_data['token'].strip()
     if (request_token == slash_token):
-        logger.debug('Token is ok')
+        logger.warn('Token is ok')
         return True
     else:
         logger.warn('Invalid request received!')
