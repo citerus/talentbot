@@ -3,6 +3,7 @@ from flask import Flask, request
 from slackclient import SlackClient
 from slackuser import SlackUser
 from trello import TrelloClient
+from talents import TrelloTalents
 
 logging.config.fileConfig('logging.conf')
 logger = logging.getLogger('fileHandler')
@@ -17,6 +18,17 @@ tokenSecret = os.environ.get('TRELLO_TOKEN_SECRET')
 
 app = Flask(__name__)
 
+def getCommands(slack, trello):
+    import inspect, new, command
+    from command import Command
+
+    commands = []
+    for name, obj in inspect.getmembers(command):
+        if inspect.isclass(obj) and issubclass(obj, Command) and obj != Command:
+            commands.append(new.instance(obj, {'slack': slack, 'trello': trello}))
+            logging.info('Found and instantiated command ' + name)
+    return sorted(commands, lambda x, y: cmp(y.importance, x.importance))
+
 @app.route('/')
 def health():
     logger.info('Really, all is ok')
@@ -30,8 +42,12 @@ def talent():
         text = request_data['text']
         slack = SlackClient(slack_token)
         trello_client = TrelloClient(apiKey, apiSecret, tr_token, tokenSecret)
-        user = SlackUser(slack.api_call("users.info", user=user_id))
+        trello = TrelloTalents(trello_client)
         logger.warn('Received text ' + text)
+        for command in getCommands(slack,trello):
+            if command.shouldTriggerOn(text):
+                return command.executeOn(text)
+        # user = SlackUser(slack.api_call("users.info", user=user_id))
         return 'Did you, ' + user.name + ', want to talk about ' + text + '?'
     else:
         return 'Sorry, no'
