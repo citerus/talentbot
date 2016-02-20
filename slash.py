@@ -1,7 +1,10 @@
-import os, logging, requests, json
+import logging
+import json
+
+import os
+import requests
 from flask import Flask, request
 from slackclient import SlackClient
-from slackuser import SlackUser
 from trello import TrelloClient
 from talents import TrelloTalents
 
@@ -39,7 +42,6 @@ def talent():
     logger.warn('Received request')
     request_data = request.form
     if valid(request_data):
-        user_id = request_data['user_id']
         text = request_data['text']
         response_url = request_data['response_url']
         slack = SlackClient(slack_token)
@@ -61,7 +63,7 @@ def respondWith(response, response_url):
 
 def valid(request_data):
     request_token = request_data['token'].strip()
-    if (request_token == slash_token):
+    if request_token == slash_token:
         logger.warn('Token is ok')
         return True
     else:
@@ -73,4 +75,3 @@ def valid(request_data):
 
 if __name__ == "__main__":
     app.run(port=80)
-    
