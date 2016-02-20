@@ -7,6 +7,7 @@ from flask import Flask, request
 from slackclient import SlackClient
 from trello import TrelloClient
 from talents import TrelloTalents
+from multiprocessing import Process
 
 logging.config.fileConfig('logging.conf')
 logger = logging.getLogger('fileHandler')
@@ -50,10 +51,13 @@ def talent():
         logger.warn('Received text ' + text)
         for command in getCommands(slack,trello):
             if command.shouldTriggerOn(text):
-                respondWith(command.executeOn(text), response_url)
+                asyncResponse(lambda: respondWith(command.executeOn(text), response_url))
         return ''
     else:
         return 'Sorry, no'
+
+def asyncResponse(func):
+    Process(target=func, args=()).start()
 
 def respondWith(response, response_url):
     payload = {'text': response}
