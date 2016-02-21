@@ -26,6 +26,10 @@ Installera nödvändiga paket:
 
 > pip install -r requirements.txt
 
+På Trello behöver du sätta upp ett Board som Talentbot har tillgång till och kan läsa. 
+Board'et måste vara organiserat så att varje konsult har en lista där listans namn är samma 
+epost-address som konsulten har på Slack.
+
 ## Tester
 
 Kör alla tester:
